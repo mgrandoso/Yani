@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>El Nacimiento del Sol</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;0,600;1,300&family=Nunito:wght@400;600;700;800&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#04060f;
+  --pink:#c4467e;
+  --blue:#3b82c4;
+  --purple:#7c3aed;
+  --gold:#fbbf24;
+  --orange:#f97316;
+  --text:#ede6f5;
+  --dim:#8b7fa8;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+
+#universe{position:fixed;inset:0;z-index:0}
+
+.screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s ease,transform .6s ease;padding:1.5rem}
+.screen.hidden{opacity:0;pointer-events:none;transform:scale(1.04)}
+
+/* ── WELCOME ── */
+#welcomeScreen{background:radial-gradient(ellipse at 50% 40%,#120830,var(--bg));overflow-y:auto;justify-content:flex-start;padding-top:3vh}
+.welcome-card{max-width:480px;width:100%;text-align:center;padding-bottom:2rem}
+.welcome-stars{font-size:2.4rem;margin-bottom:.4rem;animation:floatSoft 3s ease-in-out infinite}
+@keyframes floatSoft{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.welcome-title{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(1.6rem,5vw,2.6rem);line-height:1.15;margin-bottom:.2rem;background:linear-gradient(135deg,#f0e6ff,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.welcome-sub{color:var(--dim);font-size:.9rem;margin-bottom:1.6rem}
+.name-input-wrap{margin-bottom:1.6rem}
+.name-input{width:100%;max-width:320px;padding:.85rem 1rem;border-radius:14px;border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);backdrop-filter:blur(10px);color:var(--text);font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:600;text-align:center;outline:none;transition:border-color .3s,box-shadow .3s}
+.name-input::placeholder{color:rgba(200,190,220,.3);font-weight:400}
+.name-input:focus{border-color:rgba(196,70,126,.5);box-shadow:0 0 28px rgba(196,70,126,.12)}
+
+.section-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.17em;color:var(--dim);margin-bottom:.7rem}
+.avatar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.65rem;margin-bottom:1.2rem;max-width:320px;margin-left:auto;margin-right:auto}
+.avatar-option{position:relative;aspect-ratio:1;border-radius:16px;border:2.5px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);cursor:pointer;transition:all .3s ease;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.avatar-option:hover{border-color:rgba(255,255,255,.15);transform:scale(1.06)}
+.avatar-option.selected{border-color:var(--gold);box-shadow:0 0 18px rgba(251,191,36,.22);background:rgba(251,191,36,.05)}
+.avatar-option svg{width:68%;height:68%}
+
+.color-picks{display:flex;gap:.5rem;justify-content:center;margin-bottom:1.8rem}
+.color-dot{width:30px;height:30px;border-radius:50%;border:2.5px solid rgba(255,255,255,.08);cursor:pointer;transition:all .3s}
+.color-dot:hover{transform:scale(1.12)}
+.color-dot.selected{border-color:#fff;box-shadow:0 0 12px rgba(255,255,255,.28);transform:scale(1.12)}
+
+.start-btn{padding:.85rem 2.5rem;border-radius:50px;border:none;background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:700;cursor:pointer;letter-spacing:.03em;transition:all .3s;box-shadow:0 6px 28px rgba(124,58,237,.28);opacity:.3;pointer-events:none}
+.start-btn.ready{opacity:1;pointer-events:all}
+.start-btn.ready:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 8px 36px rgba(124,58,237,.42)}
+
+/* ── STORY UI ── */
+#storyScreen{display:none;flex-direction:column;justify-content:flex-end;align-items:center;padding:0;z-index:5}
+#storyScreen.active{display:flex}
+
+.story-top-bar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.3rem;z-index:6}
+.player-badge{display:flex;align-items:center;gap:.5rem;background:rgba(10,8,20,.5);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.06);border-radius:40px;padding:.3rem .8rem .3rem .35rem}
+.player-badge svg{width:26px;height:26px}
+.player-name{font-weight:700;font-size:.8rem;color:var(--text)}
+.chapter-ind{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.32);background:rgba(10,8,20,.45);backdrop-filter:blur(8px);padding:.35rem .8rem;border-radius:18px;border:1px solid rgba(255,255,255,.04)}
+
+/* Translucent gradient panel at bottom */
+.story-panel{position:relative;width:100%;background:linear-gradient(180deg,rgba(6,4,18,0) 0%,rgba(6,4,18,.5) 12%,rgba(6,4,18,.68) 100%);padding:2.2rem 1.8rem .8rem;display:flex;flex-direction:column;align-items:center;z-index:6}
+.story-inner{max-width:620px;width:100%;text-align:center}
+.s-title{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(1.3rem,3.5vw,1.9rem);line-height:1.15;margin-bottom:.45rem;background:linear-gradient(135deg,#f0e6ff,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;transform:translateY(10px);transition:all .65s ease}
+.s-title.show{opacity:1;transform:translateY(0)}
+.s-body{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(.95rem,2.2vw,1.12rem);line-height:1.65;color:rgba(220,215,240,.82);opacity:0;transform:translateY(10px);transition:all .65s ease .08s}
+.s-body.show{opacity:1;transform:translateY(0)}
+
+.story-ctrls{display:flex;align-items:center;gap:.65rem;padding:.7rem 0 1rem;width:100%;max-width:500px;justify-content:center}
+
+/* NAV buttons — pill-shaped, subtle, clearly "navigation" */
+.nav{height:38px;padding:0 1.1rem;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--text);font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.04em;cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .25s;flex-shrink:0;white-space:nowrap}
+.nav:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18)}
+.nav:disabled{opacity:.15;cursor:default;transform:none}
+.nav .arr{font-size:.95rem;line-height:1}
+
+/* SPEECH buttons — round, colorful, clearly "audio" */
+.speech-group{display:flex;gap:.4rem;flex-shrink:0;margin-left:.3rem}
+.cb{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s;flex-shrink:0}
+.cb.speak{background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;box-shadow:0 4px 16px rgba(196,70,126,.22);font-size:1.15rem}
+.cb.speak:hover{box-shadow:0 4px 26px rgba(196,70,126,.4);transform:scale(1.08)}
+.cb.speak.playing{animation:psp 1.3s ease-in-out infinite}
+.cb.speak.paused{background:linear-gradient(135deg,#d97706,#f59e0b);box-shadow:0 4px 16px rgba(217,119,6,.25)}
+.cb.stop{width:36px;height:36px;background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.2);color:#f87171;font-size:.8rem}
+.cb.stop:hover{background:rgba(255,80,80,.18);border-color:rgba(255,80,80,.35);transform:scale(1.08)}
+
+@keyframes psp{0%,100%{box-shadow:0 4px 16px rgba(196,70,126,.22)}50%{box-shadow:0 4px 32px rgba(196,70,126,.55);transform:scale(1.06)}}
+
+.dots{display:flex;gap:6px;flex:1;justify-content:center;align-items:center}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.12);cursor:pointer;transition:all .3s}
+.dot:hover{background:rgba(255,255,255,.28);transform:scale(1.2)}
+.dot.on{background:var(--gold);box-shadow:0 0 9px rgba(251,191,36,.4);transform:scale(1.3)}
+
+@media(min-width:700px)and(min-height:500px){
+  .story-panel{padding:2.8rem 2rem 1rem}
+  .s-title{font-size:clamp(1.4rem,3vw,2.1rem)}
+  .s-body{font-size:clamp(1rem,2vw,1.18rem)}
+}
+@media(min-width:1024px){.story-panel{padding:3rem 2rem 1rem}}
+@media(max-height:500px)and(orientation:landscape){
+  .story-panel{padding:1.5rem 1.5rem .4rem}
+  .story-ctrls{padding:.3rem 0 .5rem}
+  .story-top-bar{padding:.5rem .9rem}
+}
+</style>
+</head>
+<body>
+
+<canvas id="universe"></canvas>
+
+<!-- ═══ WELCOME ═══ -->
+<div class="screen" id="welcomeScreen">
+  <div class="welcome-card">
+    <div class="welcome-stars">✦ ✧ ✦</div>
+    <div class="welcome-title">El Nacimiento del Sol</div>
+    <div class="welcome-sub">Una aventura por el cosmos</div>
+    <div class="name-input-wrap">
+      <input class="name-input" id="nameInput" type="text" placeholder="Escribe tu nombre..." maxlength="20" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="section-label">Elige tu avatar espacial</div>
+    <div class="avatar-grid" id="avatarGrid"></div>
+    <div class="section-label">Color del traje</div>
+    <div class="color-picks" id="colorPicks"></div>
+    <button class="start-btn" id="startBtn" onclick="beginStory()">¡Comenzar la aventura!</button>
+  </div>
+</div>
+
+<!-- ═══ STORY ═══ -->
+<div class="screen hidden" id="storyScreen">
+  <div class="story-top-bar">
+    <div class="player-badge" id="playerBadge"></div>
+    <div class="chapter-ind" id="chapInd"></div>
+  </div>
+  <div class="story-panel">
+    <div class="story-inner">
+      <div class="s-title" id="sTitle"></div>
+      <div class="s-body" id="sBody"></div>
+    </div>
+    <div class="story-ctrls">
+      <button class="nav" id="prevB" onclick="go(-1)"><span class="arr">◂</span> Anterior</button>
+      <div class="dots" id="dotsBar"></div>
+      <button class="nav" id="nextB" onclick="go(1)">Siguiente <span class="arr">▸</span></button>
+      <div class="speech-group">
+        <button class="cb speak" id="spkB" onclick="toggleSpeak()" title="Escuchar / Pausar">▶</button>
+        <button class="cb stop" id="stopB" onclick="stopSpeak()" title="Detener" style="display:none">■</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════ AVATARS ═══════ */
+const SC='SUIT';
+const avatars=[
+  `<svg viewBox="0 0 100 100"><circle cx="50" cy="42" r="24" fill="${SC}" opacity=".85"/><circle cx="50" cy="42" r="18" fill="#1a1a3a"/><ellipse cx="50" cy="42" rx="14" ry="13" fill="rgba(180,210,255,.15)"/><circle cx="44" cy="40" r="2.5" fill="#fff"/><circle cx="56" cy="40" r="2.5" fill="#fff"/><path d="M44 47 Q50 52 56 47" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/><rect x="38" y="60" width="24" height="22" rx="6" fill="${SC}" opacity=".85"/><rect x="34" y="62" width="8" height="14" rx="4" fill="${SC}" opacity=".7"/><rect x="58" y="62" width="8" height="14" rx="4" fill="${SC}" opacity=".7"/><circle cx="50" cy="18" r="3" fill="${SC}" opacity=".5"/></svg>`,
+  `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="44" rx="22" ry="26" fill="${SC}"/><ellipse cx="40" cy="38" rx="7" ry="9" fill="#111"/><ellipse cx="60" cy="38" rx="7" ry="9" fill="#111"/><circle cx="41" cy="37" r="3" fill="#7fff7f"/><circle cx="61" cy="37" r="3" fill="#7fff7f"/><ellipse cx="50" cy="52" rx="4" ry="2" fill="#111"/><line x1="28" y1="22" x2="38" y2="32" stroke="${SC}" stroke-width="3" stroke-linecap="round"/><line x1="72" y1="22" x2="62" y2="32" stroke="${SC}" stroke-width="3" stroke-linecap="round"/><circle cx="26" cy="19" r="4" fill="${SC}" opacity=".7"/><circle cx="74" cy="19" r="4" fill="${SC}" opacity=".7"/><rect x="40" y="68" width="20" height="14" rx="5" fill="${SC}" opacity=".7"/></svg>`,
+  `<svg viewBox="0 0 100 100"><rect x="30" y="28" width="40" height="34" rx="8" fill="${SC}"/><rect x="36" y="35" width="12" height="9" rx="3" fill="#111"/><rect x="52" y="35" width="12" height="9" rx="3" fill="#111"/><circle cx="42" cy="39" r="2.5" fill="#0ee"/><circle cx="58" cy="39" r="2.5" fill="#0ee"/><rect x="40" y="50" width="20" height="4" rx="2" fill="#111"/><line x1="50" y1="20" x2="50" y2="28" stroke="${SC}" stroke-width="3"/><circle cx="50" cy="17" r="4" fill="${SC}" opacity=".7"/><rect x="34" y="64" width="32" height="18" rx="6" fill="${SC}" opacity=".85"/><rect x="24" y="36" width="6" height="16" rx="3" fill="${SC}" opacity=".7"/><rect x="70" y="36" width="6" height="16" rx="3" fill="${SC}" opacity=".7"/></svg>`,
+  `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="48" rx="22" ry="20" fill="${SC}"/><polygon points="32,34 28,14 42,30" fill="${SC}"/><polygon points="68,34 72,14 58,30" fill="${SC}"/><polygon points="32,34 28,14 42,30" fill="rgba(255,200,200,.2)"/><polygon points="68,34 72,14 58,30" fill="rgba(255,200,200,.2)"/><ellipse cx="42" cy="44" rx="5" ry="5.5" fill="#111"/><ellipse cx="58" cy="44" rx="5" ry="5.5" fill="#111"/><circle cx="41" cy="43" r="2" fill="#fff"/><circle cx="57" cy="43" r="2" fill="#fff"/><ellipse cx="50" cy="52" rx="3" ry="2" fill="#faa"/><ellipse cx="50" cy="74" rx="14" ry="10" fill="${SC}" opacity=".8"/></svg>`,
+  `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="38" rx="16" ry="18" fill="#ffe0c2"/><circle cx="44" cy="36" r="2.5" fill="#222"/><circle cx="56" cy="36" r="2.5" fill="#222"/><path d="M45 43 Q50 47 55 43" stroke="#c47" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M34 26 Q50 18 66 26" fill="${SC}"/><rect x="36" y="55" width="28" height="26" rx="8" fill="${SC}"/><polygon points="36,75 28,88 42,80" fill="${SC}" opacity=".7"/><polygon points="64,75 72,88 58,80" fill="${SC}" opacity=".7"/><polygon points="46,81 50,95 54,81" fill="#f97316"/><polygon points="48,81 50,90 52,81" fill="#fbbf24"/><circle cx="50" cy="64" r="3.5" fill="rgba(255,255,255,.3)"/></svg>`,
+  `<svg viewBox="0 0 100 100"><polygon points="50,10 58,38 88,38 64,54 72,82 50,66 28,82 36,54 12,38 42,38" fill="${SC}" opacity=".85"/><circle cx="44" cy="44" r="3.5" fill="#111"/><circle cx="56" cy="44" r="3.5" fill="#111"/><circle cx="43" cy="43" r="1.5" fill="#fff"/><circle cx="55" cy="43" r="1.5" fill="#fff"/><path d="M45 52 Q50 56 55 52" stroke="#111" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>`,
+  `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="54" rx="20" ry="22" fill="${SC}"/><ellipse cx="38" cy="20" rx="7" ry="22" fill="${SC}" transform="rotate(-10 38 20)"/><ellipse cx="62" cy="20" rx="7" ry="22" fill="${SC}" transform="rotate(10 62 20)"/><ellipse cx="38" cy="20" rx="4" ry="16" fill="rgba(255,180,200,.3)" transform="rotate(-10 38 20)"/><ellipse cx="62" cy="20" rx="4" ry="16" fill="rgba(255,180,200,.3)" transform="rotate(10 62 20)"/><circle cx="43" cy="50" r="3.5" fill="#111"/><circle cx="57" cy="50" r="3.5" fill="#111"/><circle cx="42" cy="49" r="1.5" fill="#fff"/><circle cx="56" cy="49" r="1.5" fill="#fff"/><ellipse cx="50" cy="58" rx="2.5" ry="2" fill="#faa"/></svg>`,
+  `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="62" rx="34" ry="10" fill="${SC}" opacity=".6"/><ellipse cx="50" cy="58" rx="28" ry="7" fill="${SC}" opacity=".8"/><path d="M34 56 Q50 20 66 56" fill="rgba(180,220,255,.2)" stroke="${SC}" stroke-width="1.5"/><circle cx="45" cy="44" r="2.5" fill="#fff"/><circle cx="55" cy="44" r="2.5" fill="#fff"/><path d="M46 49 Q50 52 54 49" stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round"/><circle cx="26" cy="64" r="3" fill="${SC}" opacity=".5"/><circle cx="74" cy="64" r="3" fill="${SC}" opacity=".5"/><circle cx="50" cy="68" r="3" fill="${SC}" opacity=".5"/></svg>`
+];
+
+const suitColors=[
+  {n:'Violeta',h:'#9b72cf'},{n:'Azul',h:'#4a9eff'},{n:'Rosa',h:'#e06090'},
+  {n:'Verde',h:'#4ecda0'},{n:'Naranja',h:'#f09040'},{n:'Rojo',h:'#e04050'}
+];
+
+let selAv=-1,selCol=0,playerName='';
+
+function initPicker(){
+  const g=document.getElementById('avatarGrid');
+  avatars.forEach((_,i)=>{
+    const d=document.createElement('div');d.className='avatar-option';
+    d.innerHTML=avatars[i].replaceAll(SC,suitColors[selCol].h);
+    d.onclick=()=>{selAv=i;document.querySelectorAll('.avatar-option').forEach((e,j)=>e.classList.toggle('selected',j===i));checkReady();};
+    g.appendChild(d);
+  });
+  const cp=document.getElementById('colorPicks');
+  suitColors.forEach((c,i)=>{
+    const d=document.createElement('div');d.className='color-dot'+(i===0?' selected':'');
+    d.style.background=c.h;d.title=c.n;
+    d.onclick=()=>{selCol=i;document.querySelectorAll('.color-dot').forEach((e,j)=>e.classList.toggle('selected',j===i));document.querySelectorAll('.avatar-option').forEach((e,j)=>e.innerHTML=avatars[j].replaceAll(SC,suitColors[i].h));};
+    cp.appendChild(d);
+  });
+  document.getElementById('nameInput').addEventListener('input',checkReady);
+}
+
+function checkReady(){
+  document.getElementById('startBtn').classList.toggle('ready',document.getElementById('nameInput').value.trim().length>0&&selAv>=0);
+}
+
+/* ═══════ SCENES ═══════ */
+const scenes=[
+  {label:"Capítulo 1",title:"La Nube Gigante",text:"Hace unos 4,600 millones de años, en un rincón de nuestra galaxia, flotaba una enorme nube de gas y polvo. Se llama nebulosa. Era fría, oscura y silenciosa… pero dentro guardaba un secreto.",speech:"Hace unos cuatro mil seiscientos millones de años, en un rincón de nuestra galaxia, flotaba una enorme nube de gas y polvo. Se llama nebulosa. Era fría, oscura y silenciosa. Pero dentro, guardaba un secreto.",greet:true,colors:{bg1:"#0a0520",bg2:"#120830",accent:"#5b3a8a",particle:"#8866bb"},anim:"nebula"},
+  {label:"Capítulo 2",title:"El Gran Colapso",text:"Algo perturbó la nube —quizás la onda de una estrella que explotó cerca. La gravedad empezó a atraer el gas hacia el centro, y la nube comenzó a girar cada vez más rápido, como el agua que se va por un desagüe cósmico.",speech:"Algo perturbó la nube. Quizás fue la onda de una estrella que explotó cerca. La gravedad empezó a atraer el gas hacia el centro. Y la nube comenzó a girar cada vez más rápido, como el agua que se va por un desagüe cósmico.",colors:{bg1:"#0d0828",bg2:"#1a0a3d",accent:"#7c3aed",particle:"#a78bfa"},anim:"collapse"},
+  {label:"Capítulo 3",title:"El Corazón Caliente",text:"En el centro de todo ese remolino, el gas se comprimió tanto que se calentó muchísimo. Se formó una bola ardiente: una protoestrella. Todavía no era una estrella de verdad, pero ya brillaba con un calor furioso.",speech:"En el centro de todo ese remolino, el gas se comprimió tanto que se calentó muchísimo. Se formó una bola ardiente: una proto estrella. Todavía no era una estrella de verdad, pero ya brillaba con un calor furioso.",colors:{bg1:"#150a08",bg2:"#2a0f10",accent:"#dc2626",particle:"#f87171"},anim:"protostar"},
+  {label:"Capítulo 4",title:"¡Nace el Sol!",text:"Cuando la temperatura del centro llegó a 15 millones de grados, los átomos de hidrógeno empezaron a fusionarse. Esa reacción liberó una cantidad increíble de energía. ¡El Sol se encendió! Y ha brillado sin parar desde entonces.",speech:"Cuando la temperatura del centro llegó a quince millones de grados, los átomos de hidrógeno empezaron a fusionarse. Esa reacción liberó una cantidad increíble de energía. ¡El Sol se encendió! Y ha brillado sin parar desde entonces.",colors:{bg1:"#1a0f00",bg2:"#2a1800",accent:"#f59e0b",particle:"#fbbf24"},anim:"sun"},
+  {label:"Capítulo 5",title:"Un Anillo de Polvo y Roca",text:"Alrededor del joven Sol quedó un disco plano de gas, polvo y rocas girando sin parar. Imagina un disco gigantesco como un plato de sopa cósmico. Dentro de ese disco, los granos de polvo empezaron a pegarse entre sí.",speech:"Alrededor del joven Sol quedó un disco plano de gas, polvo y rocas girando sin parar. Imagina un disco gigantesco, como un plato de sopa cósmico. Dentro de ese disco, los granos de polvo empezaron a pegarse entre sí.",colors:{bg1:"#0f0a05",bg2:"#1f1508",accent:"#d97706",particle:"#fcd34d"},anim:"disk"},
+  {label:"Capítulo 6",title:"Nacen los Planetas",text:"Pedacitos de roca y hielo chocaban y se unían, haciéndose cada vez más grandes. Cerca del Sol, donde hacía calor, se formaron planetas rocosos. Lejos, donde hacía frío, nacieron los gigantes de gas.",speech:"Pedacitos de roca y hielo chocaban y se unían, haciéndose cada vez más grandes. Cerca del Sol, donde hacía calor, se formaron planetas rocosos. Lejos, donde hacía frío, nacieron los gigantes de gas.",colors:{bg1:"#070a14",bg2:"#0f1528",accent:"#3b82f6",particle:"#93c5fd"},anim:"planets"},
+  {label:"Capítulo 7",title:"Nuestro Hogar",text:"Y así nació el Sistema Solar: el Sol en el centro, rodeado por ocho planetas, lunas, asteroides y cometas. Uno de esos planetas, el tercero desde el Sol, tenía algo especial: la distancia perfecta para tener agua. Ese planeta es la Tierra. Nuestro hogar.",speech:"Y así nació el Sistema Solar. El Sol en el centro, rodeado por ocho planetas, lunas, asteroides y cometas. Uno de esos planetas, el tercero desde el Sol, tenía algo especial. La distancia perfecta para tener agua. Ese planeta es la Tierra. Nuestro hogar.",bye:true,colors:{bg1:"#030810",bg2:"#0a1525",accent:"#06b6d4",particle:"#67e8f9"},anim:"solar_system"}
+];
+
+/* ═══════ CANVAS ═══════ */
+const cv=document.getElementById('universe'),c2=cv.getContext('2d');
+let W,H,cur=0,pts=[],tm=0;
+function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight}
+addEventListener('resize',resize);resize();
+
+function spawn(type,c){
+  pts=[];const mx=W/2,my=H*.36,R=Math.min(W,H);
+  if(type==='nebula'){for(let i=0;i<460;i++){const a=Math.random()*6.28,d=Math.random()*R*.42;pts.push({x:mx+Math.cos(a)*d,y:my+Math.sin(a)*d,r:Math.random()*2.4+.5,c:Math.random()>.5?c.accent:c.particle,vx:(Math.random()-.5)*.11,vy:(Math.random()-.5)*.11,ox:mx+Math.cos(a)*d,oy:my+Math.sin(a)*d});}}
+  else if(type==='collapse'){for(let i=0;i<520;i++){const a=Math.random()*6.28,d=Math.random()*R*.38;pts.push({x:mx+Math.cos(a)*d,y:my+Math.sin(a)*d,r:Math.random()*2+.5,c:Math.random()>.3?c.particle:c.accent,ox:Math.random()*W,oy:Math.random()*H});}}
+  else if(type==='protostar'){for(let i=0;i<380;i++){const a=Math.random()*6.28,d=Math.random()*R*.3;pts.push({x:mx+Math.cos(a)*d,y:my+Math.sin(a)*d,r:Math.random()*2.2+.5,c:Math.random()>.4?c.particle:'#ff6b35',ox:Math.random()*999,oy:Math.random()*999});}}
+  else if(type==='sun'){for(let i=0;i<330;i++){const a=Math.random()*6.28,d=52+Math.random()*R*.3;pts.push({x:mx+Math.cos(a)*d,y:my+Math.sin(a)*d,r:Math.random()*2+1,c:['#fbbf24','#f59e0b','#f97316','#fde68a'][~~(Math.random()*4)],ox:Math.random()*999,oy:Math.random()*999});}}
+  else if(type==='disk'){for(let i=0;i<420;i++){const a=Math.random()*6.28,d=50+Math.random()*R*.3;pts.push({x:0,y:0,r:Math.random()*2+.4,c:Math.random()>.5?c.particle:c.accent,_a:a,_d:d,_sq:.2});}}
+  else if(type==='planets'){for(let i=0;i<230;i++){const a=Math.random()*6.28,d=65+Math.random()*R*.28;pts.push({x:0,y:0,r:Math.random()*1.2+.3,c:c.particle,_a:a,_d:d});}}
+  else if(type==='solar_system'){for(let i=0;i<170;i++)pts.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.3+.3,c:'#fff'});}
+}
+
+const pdata=[{n:'Me',d:.1,s:3.5,col:'#a0a0a0',sp:4.1},{n:'V',d:.15,s:5,col:'#e8c467',sp:3.2},{n:'T',d:.21,s:5.5,col:'#4a9eff',sp:2.6},{n:'Ma',d:.26,s:4,col:'#d4603a',sp:2.1},{n:'J',d:.35,s:12,col:'#c4956a',sp:1.1},{n:'S',d:.45,s:10,col:'#e8d589',sp:.8},{n:'U',d:.54,s:7.5,col:'#7dd3d8',sp:.55},{n:'N',d:.62,s:7,col:'#4466ee',sp:.4}];
+
+function draw(t){
+  const sc=scenes[cur],c=sc.colors,mx=W/2,my=H*.36,R=Math.min(W,H);
+  const g=c2.createRadialGradient(mx,my,0,mx,my,Math.max(W,H)*.7);
+  g.addColorStop(0,c.bg2);g.addColorStop(1,c.bg1);c2.fillStyle=g;c2.fillRect(0,0,W,H);
+  const an=sc.anim;
+
+  if(an==='nebula'){
+    pts.forEach(p=>{p.x+=p.vx+Math.sin(t*.0005+p.ox)*.07;p.y+=p.vy+Math.cos(t*.0004+p.oy)*.07;c2.globalAlpha=.33+Math.sin(t*.002+p.ox)*.16;c2.beginPath();c2.arc(p.x,p.y,p.r,0,7);c2.fillStyle=p.c;c2.fill();});
+    c2.globalAlpha=.06+Math.sin(t*.001)*.03;const ng=c2.createRadialGradient(mx,my,0,mx,my,R*.36);ng.addColorStop(0,c.accent);ng.addColorStop(.5,c.particle);ng.addColorStop(1,'transparent');c2.fillStyle=ng;c2.fillRect(0,0,W,H);
+  }
+  else if(an==='collapse'){
+    pts.forEach(p=>{const dx=mx-p.x,dy=my-p.y,di=Math.sqrt(dx*dx+dy*dy)||1,ag=Math.atan2(dy,dx)+.5;p.x+=Math.cos(ag)*.0004*di+Math.sin(t*.001+p.ox)*.16;p.y+=Math.sin(ag)*.0004*di+Math.cos(t*.001+p.oy)*.16;if(Math.sqrt((p.x-mx)**2+(p.y-my)**2)<13){const aa=Math.random()*7,dd=85+Math.random()*R*.26;p.x=mx+Math.cos(aa)*dd;p.y=my+Math.sin(aa)*dd;}c2.globalAlpha=.42;c2.beginPath();c2.arc(p.x,p.y,p.r,0,7);c2.fillStyle=p.c;c2.fill();});
+    c2.globalAlpha=.13;const cg=c2.createRadialGradient(mx,my,0,mx,my,70);cg.addColorStop(0,'#fff');cg.addColorStop(.3,c.accent);cg.addColorStop(1,'transparent');c2.fillStyle=cg;c2.beginPath();c2.arc(mx,my,70,0,7);c2.fill();
+  }
+  else if(an==='protostar'){
+    pts.forEach((p,i)=>{const dx=mx-p.x,dy=my-p.y,di=Math.sqrt(dx*dx+dy*dy)||1,ag=Math.atan2(dy,dx)+.3;p.x+=Math.cos(ag)*.0003*di;p.y+=Math.sin(ag)*.0003*di;if(Math.sqrt((p.x-mx)**2+(p.y-my)**2)<26){const aa=Math.random()*7;p.x=mx+Math.cos(aa)*(70+Math.random()*170);p.y=my+Math.sin(aa)*(70+Math.random()*170);}c2.globalAlpha=.42;c2.beginPath();c2.arc(p.x,p.y,p.r*(.7+.3*Math.sin(t*.003+i)),0,7);c2.fillStyle=p.c;c2.fill();});
+    const cs=30+Math.sin(t*.004)*4;c2.globalAlpha=.85;const cg=c2.createRadialGradient(mx,my,0,mx,my,cs*3);cg.addColorStop(0,'#fff');cg.addColorStop(.15,'#ffaa44');cg.addColorStop(.4,'#cc3311');cg.addColorStop(1,'transparent');c2.fillStyle=cg;c2.beginPath();c2.arc(mx,my,cs*3,0,7);c2.fill();
+  }
+  else if(an==='sun'){
+    pts.forEach((p,i)=>{const dx=p.x-mx,dy=p.y-my,di=Math.sqrt(dx*dx+dy*dy)||1,ag=Math.atan2(dy,dx),w=Math.sin(t*.002+i*.5)*1.6;p.x=mx+Math.cos(ag+.002)*(di+w);p.y=my+Math.sin(ag+.002)*(di+w);const d2=Math.sqrt((p.x-mx)**2+(p.y-my)**2);if(d2>R*.4||d2<46){const aa=Math.random()*7,dd=50+Math.random()*R*.3;p.x=mx+Math.cos(aa)*dd;p.y=my+Math.sin(aa)*dd;}c2.globalAlpha=.42+Math.sin(t*.005+i)*.16;c2.beginPath();c2.arc(p.x,p.y,p.r,0,7);c2.fillStyle=p.c;c2.fill();});
+    const sr=40+Math.sin(t*.003)*3;c2.globalAlpha=1;const sg=c2.createRadialGradient(mx,my,0,mx,my,sr*4);sg.addColorStop(0,'#fff');sg.addColorStop(.07,'#fff7cc');sg.addColorStop(.15,'#fbbf24');sg.addColorStop(.35,'#f97316');sg.addColorStop(.6,'rgba(249,115,22,.1)');sg.addColorStop(1,'transparent');c2.fillStyle=sg;c2.beginPath();c2.arc(mx,my,sr*4,0,7);c2.fill();
+  }
+  else if(an==='disk'){
+    c2.globalAlpha=1;const sg=c2.createRadialGradient(mx,my,0,mx,my,42);sg.addColorStop(0,'#fff');sg.addColorStop(.3,'#fbbf24');sg.addColorStop(.7,'#f97316');sg.addColorStop(1,'transparent');c2.fillStyle=sg;c2.beginPath();c2.arc(mx,my,42,0,7);c2.fill();
+    pts.forEach(p=>{if(p._a!==undefined){p._a+=.001*(170/(p._d||170));p.x=mx+Math.cos(p._a)*p._d;p.y=my+Math.sin(p._a)*p._d*(p._sq||.2);}c2.globalAlpha=.38;c2.beginPath();c2.arc(p.x,p.y,p.r,0,7);c2.fillStyle=p.c;c2.fill();});
+  }
+  else if(an==='planets'){
+    c2.globalAlpha=1;const sg=c2.createRadialGradient(mx,my,0,mx,my,30);sg.addColorStop(0,'#fff');sg.addColorStop(.3,'#fbbf24');sg.addColorStop(1,'transparent');c2.fillStyle=sg;c2.beginPath();c2.arc(mx,my,30,0,7);c2.fill();
+    pts.forEach(p=>{if(p._a!==undefined){p._a+=.0005*(170/(p._d||170));p.x=mx+Math.cos(p._a)*p._d;p.y=my+Math.sin(p._a)*p._d*.2;}c2.globalAlpha=.16;c2.beginPath();c2.arc(p.x,p.y,p.r,0,7);c2.fillStyle=p.c;c2.fill();});
+    [{a:t*.0008,d:R*.1,s:6,col:'#a87832'},{a:t*.0006+2,d:R*.18,s:8,col:'#6688cc'},{a:t*.0004+4,d:R*.26,s:13,col:'#cc9966'},{a:t*.0003+1,d:R*.34,s:9,col:'#88bbcc'}].forEach(cl=>{const px=mx+Math.cos(cl.a)*cl.d,py=my+Math.sin(cl.a)*cl.d*.2;c2.globalAlpha=.7;const pg=c2.createRadialGradient(px,py,0,px,py,cl.s*1.6);pg.addColorStop(0,cl.col);pg.addColorStop(1,'transparent');c2.fillStyle=pg;c2.beginPath();c2.arc(px,py,cl.s*1.6,0,7);c2.fill();c2.globalAlpha=1;c2.beginPath();c2.arc(px,py,cl.s,0,7);c2.fillStyle=cl.col;c2.fill();});
+  }
+  else if(an==='solar_system'){
+    pts.forEach((p,i)=>{c2.globalAlpha=.26+Math.sin(t*.003+i)*.16;c2.beginPath();c2.arc(p.x,p.y,p.r,0,7);c2.fillStyle='#fff';c2.fill();});
+    const sr=18;c2.globalAlpha=1;const sg=c2.createRadialGradient(mx,my,0,mx,my,sr*3);sg.addColorStop(0,'#fff');sg.addColorStop(.1,'#fef3c7');sg.addColorStop(.25,'#fbbf24');sg.addColorStop(.5,'rgba(251,191,36,.16)');sg.addColorStop(1,'transparent');c2.fillStyle=sg;c2.beginPath();c2.arc(mx,my,sr*3,0,7);c2.fill();
+    pdata.forEach(pl=>{const oR=pl.d*R;c2.beginPath();c2.ellipse(mx,my,oR,oR*.26,0,0,7);c2.strokeStyle='rgba(255,255,255,.04)';c2.lineWidth=.5;c2.stroke();const ag=t*.0005*pl.sp,px=mx+Math.cos(ag)*oR,py=my+Math.sin(ag)*oR*.26;c2.globalAlpha=1;c2.beginPath();c2.arc(px,py,pl.s,0,7);c2.fillStyle=pl.col;c2.fill();
+    if(pl.n==='S'){c2.beginPath();c2.ellipse(px,py,pl.s*2,pl.s*.4,-.3,0,7);c2.strokeStyle='rgba(232,213,137,.4)';c2.lineWidth=1.6;c2.stroke();}
+    if(pl.n==='T'){c2.globalAlpha=.1+Math.sin(t*.004)*.07;const eg=c2.createRadialGradient(px,py,pl.s,px,py,pl.s*3);eg.addColorStop(0,'#4a9eff');eg.addColorStop(1,'transparent');c2.fillStyle=eg;c2.beginPath();c2.arc(px,py,pl.s*3,0,7);c2.fill();}});
+  }
+  c2.globalAlpha=1;
+}
+
+function loop(ts){tm=ts||0;c2.clearRect(0,0,W,H);draw(tm);requestAnimationFrame(loop);}
+
+/* ═══════ SCENE MGMT ═══════ */
+function showScene(i){
+  fullStopSpeech();
+  cur=i;spawn(scenes[i].anim,scenes[i].colors);
+  const tE=document.getElementById('sTitle'),bE=document.getElementById('sBody');
+  tE.classList.remove('show');bE.classList.remove('show');
+  setTimeout(()=>{
+    tE.textContent=scenes[i].title;
+    let body=scenes[i].text;
+    if(scenes[i].greet) body=playerName+', esta historia empieza hace mucho tiempo. '+body;
+    if(scenes[i].bye) body+=' ¿No es increíble, '+playerName+'?';
+    bE.textContent=body;
+    tE.classList.add('show');bE.classList.add('show');
+    document.getElementById('chapInd').textContent=scenes[i].label+' / '+scenes.length;
+    document.getElementById('prevB').disabled=i===0;
+    document.getElementById('nextB').disabled=i===scenes.length-1;
+    document.querySelectorAll('.dot').forEach((d,j)=>d.classList.toggle('on',j===i));
+  },100);
+}
+
+function go(dir){const n=cur+dir;if(n>=0&&n<scenes.length)showScene(n);}
+
+/* ═══════════════════════════════════════
+   SPEECH ENGINE — Pause / Resume / Stop
+   + Smart Spanish voice selection
+   ═══════════════════════════════════════ */
+
+// States: 'idle' | 'playing' | 'paused'
+let speechState = 'idle';
+let currentUtterance = null;
+let chosenVoice = null;
+let voicesReady = false;
+
+// ── Voice selection ──
+// Priority: masculine Spanish voice ideal for narration
+// 1) Known male es-ES/es-MX names  2) any male-identified es-*  3) any es-ES/es-MX  4) any es-*
+function pickSpanishVoice() {
+  const voices = speechSynthesis.getVoices();
+  if (!voices.length) return null;
+
+  // Known masculine Spanish voice names across platforms
+  const maleNames = [
+    'jorge','andrés','andres','diego','pablo','enrique','rodrigo',
+    'juan','carlos','antonio','miguel','álvaro','alvaro','marcos',
+    'gonzalo','alejandro','héctor','hector','sergio','raúl','raul',
+    'male','masculin','hombre'
+  ];
+  // Known female names to deprioritize
+  const femaleNames = [
+    'mónica','monica','paulina','lupe','elena','conchita','lucía',
+    'lucia','ines','inés','elvira','sabina','penélope','penelope',
+    'female','femenin','mujer','marisol','rosa','isabel','carmen',
+    'francisca','angélica','angelica','jimena'
+  ];
+
+  const scored = voices
+    .filter(v => v.lang && v.lang.startsWith('es'))
+    .map(v => {
+      let score = 0;
+      const lang = v.lang.toLowerCase();
+      const name = v.name.toLowerCase();
+
+      // Regional preference
+      if (lang === 'es-es') score += 20;
+      else if (lang === 'es-mx') score += 18;
+      else if (lang === 'es-us') score += 15;
+      else score += 10;
+
+      // Masculine voice bonus
+      if (maleNames.some(m => name.includes(m))) score += 8;
+      // Female voice penalty
+      if (femaleNames.some(f => name.includes(f))) score -= 6;
+
+      // High-quality engine bonus
+      if (name.includes('google') || name.includes('microsoft') || name.includes('natural')) score += 4;
+
+      // Network voices are usually higher quality
+      if (!v.localService) score += 1;
+
+      return { voice: v, score };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  if (scored.length) {
+    console.log('🗣 Selected voice:', scored[0].voice.name, '(' + scored[0].voice.lang + ') score:', scored[0].score);
+    console.log('Available es voices:', scored.map(s => s.voice.name + ' [' + s.score + ']').join(', '));
+  }
+  return scored.length ? scored[0].voice : null;
+}
+
+function loadVoices() {
+  const voices = speechSynthesis.getVoices();
+  if (voices.length) {
+    chosenVoice = pickSpanishVoice();
+    voicesReady = true;
+  }
+}
+
+// Load voices — some browsers fire the event, others have them ready immediately
+loadVoices();
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+// Fallback: poll for voices (some mobile browsers are slow)
+let voicePollCount = 0;
+const voicePoll = setInterval(() => {
+  voicePollCount++;
+  if (voicesReady || voicePollCount > 20) { clearInterval(voicePoll); return; }
+  loadVoices();
+}, 250);
+
+// ── Build speech text for current scene ──
+function getSpeechText() {
+  const sc = scenes[cur];
+  let txt = sc.speech;
+  if (sc.greet) txt = playerName + ', esta historia empieza hace mucho tiempo. ' + txt;
+  if (sc.bye) txt += ' ¿No es increíble, ' + playerName + '?';
+  return txt;
+}
+
+// ── UI updates ──
+function updateSpeechUI() {
+  const btn = document.getElementById('spkB');
+  const stopBtn = document.getElementById('stopB');
+
+  btn.classList.remove('playing', 'paused');
+
+  if (speechState === 'idle') {
+    btn.innerHTML = '▶';
+    btn.title = 'Escuchar';
+    stopBtn.style.display = 'none';
+  } else if (speechState === 'playing') {
+    btn.innerHTML = '⏸';
+    btn.title = 'Pausar';
+    btn.classList.add('playing');
+    stopBtn.style.display = 'flex';
+  } else if (speechState === 'paused') {
+    btn.innerHTML = '▶';
+    btn.title = 'Continuar';
+    btn.classList.add('paused');
+    stopBtn.style.display = 'flex';
+  }
+}
+
+// ── Main toggle: Play / Pause / Resume ──
+function toggleSpeak() {
+  if (speechState === 'idle') {
+    // Start fresh
+    const txt = getSpeechText();
+    currentUtterance = new SpeechSynthesisUtterance(txt);
+    currentUtterance.lang = 'es-ES';
+    currentUtterance.rate = 0.9;
+    currentUtterance.pitch = 0.85;
+
+    if (chosenVoice) currentUtterance.voice = chosenVoice;
+
+    currentUtterance.onend = () => {
+      speechState = 'idle';
+      currentUtterance = null;
+      updateSpeechUI();
+    };
+    currentUtterance.onerror = (e) => {
+      // 'interrupted' and 'canceled' are normal when user stops
+      if (e.error !== 'interrupted' && e.error !== 'canceled') {
+        console.warn('Speech error:', e.error);
+      }
+      speechState = 'idle';
+      currentUtterance = null;
+      updateSpeechUI();
+    };
+
+    speechSynthesis.speak(currentUtterance);
+    speechState = 'playing';
+    updateSpeechUI();
+
+  } else if (speechState === 'playing') {
+    // Pause
+    speechSynthesis.pause();
+    speechState = 'paused';
+    updateSpeechUI();
+
+  } else if (speechState === 'paused') {
+    // Resume
+    speechSynthesis.resume();
+    speechState = 'playing';
+    updateSpeechUI();
+  }
+}
+
+// ── Stop completely (resets to beginning) ──
+function stopSpeak() {
+  speechSynthesis.cancel();
+  speechState = 'idle';
+  currentUtterance = null;
+  updateSpeechUI();
+}
+
+// ── Full stop used when changing scenes ──
+function fullStopSpeech() {
+  speechSynthesis.cancel();
+  speechState = 'idle';
+  currentUtterance = null;
+  updateSpeechUI();
+}
+
+/* ═══════ BEGIN ═══════ */
+function beginStory(){
+  playerName=document.getElementById('nameInput').value.trim();
+  if(!playerName||selAv<0)return;
+  const badge=document.getElementById('playerBadge');
+  badge.innerHTML=avatars[selAv].replaceAll(SC,suitColors[selCol].h)+'<span class="player-name">'+playerName+'</span>';
+  const bar=document.getElementById('dotsBar');bar.innerHTML='';
+  scenes.forEach((_,i)=>{const d=document.createElement('div');d.className='dot';d.onclick=()=>showScene(i);bar.appendChild(d);});
+  document.getElementById('welcomeScreen').classList.add('hidden');
+  const ss=document.getElementById('storyScreen');
+  setTimeout(()=>{ss.classList.remove('hidden');ss.classList.add('active');showScene(0);loop();},600);
+}
+
+// Keyboard
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('storyScreen').classList.contains('active'))return;
+  if(e.key==='ArrowRight')go(1);else if(e.key==='ArrowLeft')go(-1);
+  else if(e.key===' '){e.preventDefault();toggleSpeak();}
+  else if(e.key==='Escape')stopSpeak();
+});
+// Swipe
+let tx=0;
+document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+document.addEventListener('touchend',e=>{if(!document.getElementById('storyScreen').classList.contains('active'))return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>55){dx<0?go(1):go(-1);}},{passive:true});
+
+// Intro bg
+(function iBg(ts){
+  if(!document.getElementById('welcomeScreen').classList.contains('hidden')){
+    c2.clearRect(0,0,W,H);const g=c2.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*.6);g.addColorStop(0,'#120830');g.addColorStop(1,'#04060f');c2.fillStyle=g;c2.fillRect(0,0,W,H);
+    for(let i=0;i<150;i++){const x=(Math.sin(i*127.1+(ts||0)*.00002)*.5+.5)*W,y=(Math.cos(i*311.7+(ts||0)*.00001)*.5+.5)*H;c2.globalAlpha=.18+Math.sin((ts||0)*.003+i)*.14;c2.beginPath();c2.arc(x,y,Math.sin(i+(ts||0)*.002)*.7+.7,0,7);c2.fillStyle='#fff';c2.fill();}
+    c2.globalAlpha=1;
+  }
+  requestAnimationFrame(iBg);
+})(0);
+
+document.addEventListener('DOMContentLoaded',initPicker);
+</script>
+</body>
+</html>
