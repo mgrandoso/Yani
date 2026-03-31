@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>El Nacimiento del Sol</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;0,600;1,300&family=Nunito:wght@400;600;700;800&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#04060f;--pink:#c4467e;--purple:#7c3aed;--gold:#fbbf24;
+  --text:#ede6f5;--dim:#8b7fa8;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+
+#universe{position:fixed;inset:0;z-index:0}
+
+/* Transition overlay */
+#transitionOverlay{position:fixed;inset:0;z-index:50;background:#04060f;opacity:0;pointer-events:none;transition:opacity .45s ease}
+#transitionOverlay.active{opacity:1}
+
+.screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s ease,transform .6s ease;padding:1.5rem}
+.screen.hidden{opacity:0;pointer-events:none;transform:scale(1.04)}
+
+/* ── WELCOME ── */
+#welcomeScreen{background:radial-gradient(ellipse at 50% 40%,#120830,var(--bg));overflow-y:auto;justify-content:flex-start;padding-top:3vh}
+.wcard{max-width:480px;width:100%;text-align:center;padding-bottom:2rem}
+.wstars{font-size:2.4rem;margin-bottom:.4rem;animation:fl 3s ease-in-out infinite}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.wtitle{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(1.6rem,5vw,2.6rem);line-height:1.15;margin-bottom:.2rem;background:linear-gradient(135deg,#f0e6ff,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.wsub{color:var(--dim);font-size:.9rem;margin-bottom:1.6rem}
+.ninput{width:100%;max-width:320px;padding:.85rem 1rem;border-radius:14px;border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);backdrop-filter:blur(10px);color:var(--text);font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:600;text-align:center;outline:none;transition:border-color .3s,box-shadow .3s;margin-bottom:1.6rem}
+.ninput::placeholder{color:rgba(200,190,220,.3);font-weight:400}
+.ninput:focus{border-color:rgba(196,70,126,.5);box-shadow:0 0 28px rgba(196,70,126,.12)}
+.slbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.17em;color:var(--dim);margin-bottom:.7rem}
+.agrid{display:grid;grid-template-columns:repeat(4,1fr);gap:.65rem;margin-bottom:1.2rem;max-width:320px;margin-left:auto;margin-right:auto}
+.aopt{aspect-ratio:1;border-radius:16px;border:2.5px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.aopt:hover{border-color:rgba(255,255,255,.15);transform:scale(1.06)}
+.aopt.sel{border-color:var(--gold);box-shadow:0 0 18px rgba(251,191,36,.22);background:rgba(251,191,36,.05)}
+.aopt svg{width:68%;height:68%}
+.cpicks{display:flex;gap:.5rem;justify-content:center;margin-bottom:1.8rem}
+.cdot{width:30px;height:30px;border-radius:50%;border:2.5px solid rgba(255,255,255,.08);cursor:pointer;transition:all .3s}
+.cdot:hover{transform:scale(1.12)}
+.cdot.sel{border-color:#fff;box-shadow:0 0 12px rgba(255,255,255,.28);transform:scale(1.12)}
+.gobtn{padding:.85rem 2.5rem;border-radius:50px;border:none;background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:700;cursor:pointer;transition:all .3s;box-shadow:0 6px 28px rgba(124,58,237,.28);opacity:.3;pointer-events:none}
+.gobtn.ready{opacity:1;pointer-events:all}
+.gobtn.ready:hover{transform:translateY(-2px) scale(1.03)}
+
+/* ── STORY ── */
+#storyScreen{display:none;flex-direction:column;justify-content:flex-end;align-items:center;padding:0;z-index:5}
+#storyScreen.active{display:flex}
+.topbar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.3rem;z-index:6}
+.badge{display:flex;align-items:center;gap:.5rem;background:rgba(10,8,20,.5);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.06);border-radius:40px;padding:.3rem .8rem .3rem .35rem}
+.badge svg{width:26px;height:26px}
+.badge span{font-weight:700;font-size:.8rem}
+.chapind{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.32);background:rgba(10,8,20,.45);backdrop-filter:blur(8px);padding:.35rem .8rem;border-radius:18px;border:1px solid rgba(255,255,255,.04)}
+.spanel{position:relative;width:100%;background:linear-gradient(180deg,rgba(6,4,18,0) 0%,rgba(6,4,18,.5) 12%,rgba(6,4,18,.68) 100%);padding:2.2rem 1.8rem .8rem;display:flex;flex-direction:column;align-items:center;z-index:6}
+.sinner{max-width:620px;width:100%;text-align:center}
+.st{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(1.3rem,3.5vw,1.9rem);line-height:1.15;margin-bottom:.45rem;background:linear-gradient(135deg,#f0e6ff,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;transform:translateY(10px);transition:all .65s ease}
+.st.show{opacity:1;transform:translateY(0)}
+.sb{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(.95rem,2.2vw,1.12rem);line-height:1.65;color:rgba(220,215,240,.82);opacity:0;transform:translateY(10px);transition:all .65s ease .08s}
+.sb.show{opacity:1;transform:translateY(0)}
+.sctrls{display:flex;align-items:center;gap:.65rem;padding:.7rem 0 1rem;width:100%;max-width:500px;justify-content:center}
+.nav{height:38px;padding:0 1.1rem;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--text);font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.04em;cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .25s;flex-shrink:0}
+.nav:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18)}
+.nav:disabled{opacity:.15;cursor:default}
+.nav .ar{font-size:.95rem;line-height:1}
+.sgrp{display:flex;gap:.4rem;flex-shrink:0;margin-left:.3rem}
+.ab{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s;flex-shrink:0;color:#fff}
+.ab.sp{background:linear-gradient(135deg,var(--pink),var(--purple));box-shadow:0 4px 16px rgba(196,70,126,.22);font-size:1.15rem}
+.ab.sp:hover{box-shadow:0 4px 26px rgba(196,70,126,.4);transform:scale(1.08)}
+.ab.sp.playing{animation:psp 1.3s ease-in-out infinite}
+.ab.sp.paused{background:linear-gradient(135deg,#d97706,#f59e0b)}
+.ab.stp{width:36px;height:36px;background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.2);color:#f87171;font-size:.8rem}
+.ab.stp:hover{background:rgba(255,80,80,.18);transform:scale(1.08)}
+@keyframes psp{0%,100%{box-shadow:0 4px 16px rgba(196,70,126,.22)}50%{box-shadow:0 4px 32px rgba(196,70,126,.55);transform:scale(1.06)}}
+.dots{display:flex;gap:6px;flex:1;justify-content:center;align-items:center}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.12);cursor:pointer;transition:all .3s}
+.dot.on{background:var(--gold);box-shadow:0 0 9px rgba(251,191,36,.4);transform:scale(1.3)}
+
+/* ── FINALE ── */
+#finaleScreen{display:none;flex-direction:column;justify-content:center;align-items:center;padding:2rem;z-index:5;text-align:center}
+#finaleScreen.active{display:flex}
+.fin-avatar{width:80px;height:80px;margin-bottom:1rem;animation:finBounce 2s ease-in-out infinite}
+.fin-avatar svg{width:100%;height:100%}
+@keyframes finBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.fin-title{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(1.6rem,4.5vw,2.5rem);margin-bottom:.5rem;background:linear-gradient(135deg,#f0e6ff,var(--gold),#67e8f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;transform:translateY(20px);transition:all 1s ease}
+.fin-title.show{opacity:1;transform:translateY(0)}
+.fin-text{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(1rem,2.5vw,1.2rem);color:rgba(220,215,240,.8);line-height:1.6;max-width:500px;margin-bottom:2rem;opacity:0;transform:translateY(15px);transition:all 1s ease .3s}
+.fin-text.show{opacity:1;transform:translateY(0)}
+.restartbtn{padding:.85rem 2.5rem;border-radius:50px;border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:var(--text);font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s;opacity:0;transform:translateY(10px);transition:all .6s ease .8s}
+.restartbtn.show{opacity:1;transform:translateY(0)}
+.restartbtn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);transform:translateY(-2px)}
+
+@media(min-width:700px)and(min-height:500px){.spanel{padding:2.8rem 2rem 1rem}.st{font-size:clamp(1.4rem,3vw,2.1rem)}.sb{font-size:clamp(1rem,2vw,1.18rem)}}
+@media(min-width:1024px){.spanel{padding:3rem 2rem 1rem}}
+@media(max-height:500px)and(orientation:landscape){.spanel{padding:1.5rem 1.5rem .4rem}.sctrls{padding:.3rem 0 .5rem}.topbar{padding:.5rem .9rem}}
+</style>
+</head>
+<body>
+
+<canvas id="universe"></canvas>
+<div id="transitionOverlay"></div>
+
+<!-- WELCOME -->
+<div class="screen" id="welcomeScreen">
+  <div class="wcard">
+    <div class="wstars">✦ ✧ ✦</div>
+    <div class="wtitle">El Nacimiento del Sol</div>
+    <div class="wsub">Una aventura por el cosmos</div>
+    <input class="ninput" id="nameInput" type="text" placeholder="Escribe tu nombre..." maxlength="20" autocomplete="off" spellcheck="false">
+    <div class="slbl">Elige tu avatar espacial</div>
+    <div class="agrid" id="avatarGrid"></div>
+    <div class="slbl">Color del traje</div>
+    <div class="cpicks" id="colorPicks"></div>
+    <button class="gobtn" id="startBtn" onclick="beginStory()">¡Comenzar la aventura!</button>
+  </div>
+</div>
+
+<!-- STORY -->
+<div class="screen hidden" id="storyScreen">
+  <div class="topbar">
+    <div class="badge" id="playerBadge"></div>
+    <div class="chapind" id="chapInd"></div>
+  </div>
+  <div class="spanel">
+    <div class="sinner">
+      <div class="st" id="sTitle"></div>
+      <div class="sb" id="sBody"></div>
+    </div>
+    <div class="sctrls">
+      <button class="nav" id="prevB" onclick="go(-1)"><span class="ar">◂</span> Anterior</button>
+      <div class="dots" id="dotsBar"></div>
+      <button class="nav" id="nextB" onclick="go(1)">Siguiente <span class="ar">▸</span></button>
+      <div class="sgrp">
+        <button class="ab sp" id="spkB" onclick="toggleSpeak()">▶</button>
+        <button class="ab stp" id="stopB" onclick="stopSpeak()" style="display:none">■</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FINALE -->
+<div class="screen hidden" id="finaleScreen">
+  <div class="fin-avatar" id="finAvatar"></div>
+  <div class="fin-title" id="finTitle"></div>
+  <div class="fin-text" id="finText"></div>
+  <button class="restartbtn" id="restartBtn" onclick="restart()">✦ Volver a empezar ✦</button>
+</div>
+
+<script>
+/* ═══════ AVATARS ═══════ */
+const SC='SUIT';
+const avatars=[
+  `<svg viewBox="0 0 100 100"><circle cx="50" cy="42" r="24" fill="${SC}" opacity=".85"/><circle cx="50" cy="42" r="18" fill="#1a1a3a"/><ellipse cx="50" cy="42" rx="14" ry="13" fill="rgba(180,210,255,.15)"/><circle cx="44" cy="40" r="2.5" fill="#fff"/><circle cx="56" cy="40" r="2.5" fill="#fff"/><path d="M44 47 Q50 52 56 47" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/><rect x="38" y="60" width="24" height="22" rx="6" fill="${SC}" opacity=".85"/><rect x="34" y="62" width="8" height="14" rx="4" fill="${SC}" opacity=".7"/><rect x="58" y="62" width="8" height="14" rx="4" fill="${SC}" opacity=".7"/><circle cx="50" cy="18" r="3" fill="${SC}" opacity=".5"/></svg>`,
+  `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="44" rx="22" ry="26" fill="${SC}"/><ellipse cx="40" cy="38" rx="7" ry="9" fill="#111"/><ellipse cx="60" cy="38" rx="7" ry="9" fill="#111"/><circle cx="41" cy="37" r="3" fill="#7fff7f"/><circle cx="61" cy="37" r="3" fill="#7fff7f"/><ellipse cx="50" cy="52" rx="4" ry="2" fill="#111"/><line x1="28" y1="22" x2="38" y2="32" stroke="${SC}" stroke-width="3" stroke-linecap="round"/><line x1="72" y1="22" x2="62" y2="32" stroke="${SC}" stroke-width="3" stroke-linecap="round"/><circle cx="26" cy="19" r="4" fill="${SC}" opacity=".7"/><circle cx="74" cy="19" r="4" fill="${SC}" opacity=".7"/><rect x="40" y="68" width="20" height="14" rx="5" fill="${SC}" opacity=".7"/></svg>`,
+  `<svg viewBox="0 0 100 100"><rect x="30" y="28" width="40" height="34" rx="8" fill="${SC}"/><rect x="36" y="35" width="12" height="9" rx="3" fill="#111"/><rect x="52" y="35" width="12" height="9" rx="3" fill="#111"/><circle cx="42" cy="39" r="2.5" fill="#0ee"/><circle cx="58" cy="39" r="2.5" fill="#0ee"/><rect x="40" y="50" width="20" height="4" rx="2" fill="#111"/><line x1="50" y1="20" x2="50" y2="28" stroke="${SC}" stroke-width="3"/><circle cx="50" cy="17" r="4" fill="${SC}" opacity=".7"/><rect x="34" y="64" width="32" height="18" rx="6" fill="${SC}" opacity=".85"/><rect x="24" y="36" width="6" height="16" rx="3" fill="${SC}" opacity=".7"/><rect x="70" y="36" width="6" height="16" rx="3" fill="${SC}" opacity=".7"/></svg>`,
+  `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="48" rx="22" ry="20" fill="${SC}"/><polygon points="32,34 28,14 42,30" fill="${SC}"/><polygon points="68,34 72,14 58,30" fill="${SC}"/><polygon points="32,34 28,14 42,30" fill="rgba(255,200,200,.2)"/><polygon points="68,34 72,14 58,30" fill="rgba(255,200,200,.2)"/><ellipse cx="42" cy="44" rx="5" ry="5.5" fill="#111"/><ellipse cx="58" cy="44" rx="5" ry="5.5" fill="#111"/><circle cx="41" cy="43" r="2" fill="#fff"/><circle cx="57" cy="43" r="2" fill="#fff"/><ellipse cx="50" cy="52" rx="3" ry="2" fill="#faa"/><ellipse cx="50" cy="74" rx="14" ry="10" fill="${SC}" opacity=".8"/></svg>`,
+  `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="38" rx="16" ry="18" fill="#ffe0c2"/><circle cx="44" cy="36" r="2.5" fill="#222"/><circle cx="56" cy="36" r="2.5" fill="#222"/><path d="M45 43 Q50 47 55 43" stroke="#c47" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M34 26 Q50 18 66 26" fill="${SC}"/><rect x="36" y="55" width="28" height="26" rx="8" fill="${SC}"/><polygon points="36,75 28,88 42,80" fill="${SC}" opacity=".7"/><polygon points="64,75 72,88 58,80" fill="${SC}" opacity=".7"/><polygon points="46,81 50,95 54,81" fill="#f97316"/><polygon points="48,81 50,90 52,81" fill="#fbbf24"/><circle cx="50" cy="64" r="3.5" fill="rgba(255,255,255,.3)"/></svg>`,
+  `<svg viewBox="0 0 100 100"><polygon points="50,10 58,38 88,38 64,54 72,82 50,66 28,82 36,54 12,38 42,38" fill="${SC}" opacity=".85"/><circle cx="44" cy="44" r="3.5" fill="#111"/><circle cx="56" cy="44" r="3.5" fill="#111"/><circle cx="43" cy="43" r="1.5" fill="#fff"/><circle cx="55" cy="43" r="1.5" fill="#fff"/><path d="M45 52 Q50 56 55 52" stroke="#111" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>`,
+  `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="54" rx="20" ry="22" fill="${SC}"/><ellipse cx="38" cy="20" rx="7" ry="22" fill="${SC}" transform="rotate(-10 38 20)"/><ellipse cx="62" cy="20" rx="7" ry="22" fill="${SC}" transform="rotate(10 62 20)"/><ellipse cx="38" cy="20" rx="4" ry="16" fill="rgba(255,180,200,.3)" transform="rotate(-10 38 20)"/><ellipse cx="62" cy="20" rx="4" ry="16" fill="rgba(255,180,200,.3)" transform="rotate(10 62 20)"/><circle cx="43" cy="50" r="3.5" fill="#111"/><circle cx="57" cy="50" r="3.5" fill="#111"/><circle cx="42" cy="49" r="1.5" fill="#fff"/><circle cx="56" cy="49" r="1.5" fill="#fff"/><ellipse cx="50" cy="58" rx="2.5" ry="2" fill="#faa"/></svg>`,
+  `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="62" rx="34" ry="10" fill="${SC}" opacity=".6"/><ellipse cx="50" cy="58" rx="28" ry="7" fill="${SC}" opacity=".8"/><path d="M34 56 Q50 20 66 56" fill="rgba(180,220,255,.2)" stroke="${SC}" stroke-width="1.5"/><circle cx="45" cy="44" r="2.5" fill="#fff"/><circle cx="55" cy="44" r="2.5" fill="#fff"/><path d="M46 49 Q50 52 54 49" stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round"/><circle cx="26" cy="64" r="3" fill="${SC}" opacity=".5"/><circle cx="74" cy="64" r="3" fill="${SC}" opacity=".5"/><circle cx="50" cy="68" r="3" fill="${SC}" opacity=".5"/></svg>`
+];
+const suitC=[{n:'Violeta',h:'#9b72cf'},{n:'Azul',h:'#4a9eff'},{n:'Rosa',h:'#e06090'},{n:'Verde',h:'#4ecda0'},{n:'Naranja',h:'#f09040'},{n:'Rojo',h:'#e04050'}];
+let selAv=-1,selCol=0,playerName='';
+
+function initPicker(){
+  const g=document.getElementById('avatarGrid');
+  avatars.forEach((_,i)=>{const d=document.createElement('div');d.className='aopt';d.innerHTML=avatars[i].replaceAll(SC,suitC[selCol].h);d.onclick=()=>{selAv=i;document.querySelectorAll('.aopt').forEach((e,j)=>e.classList.toggle('sel',j===i));chk();};g.appendChild(d);});
+  const cp=document.getElementById('colorPicks');
+  suitC.forEach((c,i)=>{const d=document.createElement('div');d.className='cdot'+(i===0?' sel':'');d.style.background=c.h;d.onclick=()=>{selCol=i;document.querySelectorAll('.cdot').forEach((e,j)=>e.classList.toggle('sel',j===i));document.querySelectorAll('.aopt').forEach((e,j)=>e.innerHTML=avatars[j].replaceAll(SC,suitC[i].h));};cp.appendChild(d);});
+  document.getElementById('nameInput').addEventListener('input',chk);
+}
+function chk(){document.getElementById('startBtn').classList.toggle('ready',document.getElementById('nameInput').value.trim().length>0&&selAv>=0);}
+
+/* ═══════ SCENES ═══════ */
+const scenes=[
+  {label:"Capítulo 1",title:"La Nube Gigante",text:"Hace unos 4,600 millones de años, en un rincón de nuestra galaxia, flotaba una enorme nube de gas y polvo. Se llama nebulosa. Era fría, oscura y silenciosa… pero dentro guardaba un secreto.",speech:"Hace unos cuatro mil seiscientos millones de años, en un rincón de nuestra galaxia, flotaba una enorme nube de gas y polvo. Se llama nebulosa. Era fría, oscura y silenciosa. Pero dentro, guardaba un secreto.",greet:true,colors:{bg1:"#0a0520",bg2:"#120830",a:"#5b3a8a",p:"#8866bb"},anim:"nebula"},
+  {label:"Capítulo 2",title:"El Gran Colapso",text:"Algo perturbó la nube —quizás la onda de una estrella que explotó cerca. La gravedad empezó a atraer el gas hacia el centro, y la nube comenzó a girar cada vez más rápido, como el agua que se va por un desagüe cósmico.",speech:"Algo perturbó la nube. Quizás fue la onda de una estrella que explotó cerca. La gravedad empezó a atraer el gas hacia el centro. Y la nube comenzó a girar cada vez más rápido, como el agua que se va por un desagüe cósmico.",colors:{bg1:"#0d0828",bg2:"#1a0a3d",a:"#7c3aed",p:"#a78bfa"},anim:"collapse"},
+  {label:"Capítulo 3",title:"El Corazón Caliente",text:"En el centro de todo ese remolino, el gas se comprimió tanto que se calentó muchísimo. Se formó una bola ardiente: una protoestrella. Todavía no era una estrella de verdad, pero ya brillaba con un calor furioso.",speech:"En el centro de todo ese remolino, el gas se comprimió tanto que se calentó muchísimo. Se formó una bola ardiente: una proto estrella. Todavía no era una estrella de verdad, pero ya brillaba con un calor furioso.",colors:{bg1:"#150a08",bg2:"#2a0f10",a:"#dc2626",p:"#f87171"},anim:"protostar"},
+  {label:"Capítulo 4",title:"¡Nace el Sol!",text:"Cuando la temperatura del centro llegó a 15 millones de grados, los átomos de hidrógeno empezaron a fusionarse. Esa reacción liberó una cantidad increíble de energía. ¡El Sol se encendió! Y ha brillado sin parar desde entonces.",speech:"Cuando la temperatura del centro llegó a quince millones de grados, los átomos de hidrógeno empezaron a fusionarse. Esa reacción liberó una cantidad increíble de energía. ¡El Sol se encendió! Y ha brillado sin parar desde entonces.",colors:{bg1:"#1a0f00",bg2:"#2a1800",a:"#f59e0b",p:"#fbbf24"},anim:"sun",flash:true},
+  {label:"Capítulo 5",title:"Un Anillo de Polvo y Roca",text:"Alrededor del joven Sol quedó un disco plano de gas, polvo y rocas girando sin parar. Imagina un disco gigantesco como un plato de sopa cósmico. Dentro de ese disco, los granos de polvo empezaron a pegarse entre sí.",speech:"Alrededor del joven Sol quedó un disco plano de gas, polvo y rocas girando sin parar. Imagina un disco gigantesco, como un plato de sopa cósmico. Dentro de ese disco, los granos de polvo empezaron a pegarse entre sí.",colors:{bg1:"#0f0a05",bg2:"#1f1508",a:"#d97706",p:"#fcd34d"},anim:"disk"},
+  {label:"Capítulo 6",title:"Nacen los Planetas",text:"Pedacitos de roca y hielo chocaban y se unían, haciéndose cada vez más grandes. Cerca del Sol, donde hacía calor, se formaron planetas rocosos. Lejos, donde hacía frío, nacieron los gigantes de gas.",speech:"Pedacitos de roca y hielo chocaban y se unían, haciéndose cada vez más grandes. Cerca del Sol, donde hacía calor, se formaron planetas rocosos. Lejos, donde hacía frío, nacieron los gigantes de gas.",colors:{bg1:"#070a14",bg2:"#0f1528",a:"#3b82f6",p:"#93c5fd"},anim:"planets"},
+  {label:"Capítulo 7",title:"Nuestro Hogar",text:"Y así nació el Sistema Solar: el Sol en el centro, rodeado por ocho planetas, lunas, asteroides y cometas. Uno de esos planetas, el tercero desde el Sol, tenía algo especial: la distancia perfecta para tener agua. Ese planeta es la Tierra. Nuestro hogar.",speech:"Y así nació el Sistema Solar. El Sol en el centro, rodeado por ocho planetas, lunas, asteroides y cometas. Uno de esos planetas, el tercero desde el Sol, tenía algo especial. La distancia perfecta para tener agua. Ese planeta es la Tierra. Nuestro hogar.",bye:true,last:true,colors:{bg1:"#030810",bg2:"#0a1525",a:"#06b6d4",p:"#67e8f9"},anim:"solar_system"}
+];
+
+/* ═══════ CANVAS ═══════ */
+const cv=document.getElementById('universe'),c2=cv.getContext('2d');
+let W,H,cur=0,pts=[],tm=0,bgStars=[],mode='intro',flashAlpha=0;
+
+function resize(){
+  W=cv.width=innerWidth;H=cv.height=innerHeight;
+  // Regenerate background stars
+  bgStars=[];for(let i=0;i<120;i++)bgStars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+.3,s:Math.random()*2+1});
+}
+addEventListener('resize',resize);resize();
+
+function drawBgStars(t){
+  bgStars.forEach(s=>{c2.globalAlpha=.12+Math.sin(t*.001*s.s+s.x)*.08;c2.beginPath();c2.arc(s.x,s.y,s.r,0,7);c2.fillStyle='#fff';c2.fill();});
+  c2.globalAlpha=1;
+}
+
+function spawn(type,c){
+  pts=[];const mx=W/2,my=H*.36,R=Math.min(W,H);
+  if(type==='nebula'){for(let i=0;i<460;i++){const a=Math.random()*6.28,d=Math.random()*R*.42;pts.push({x:mx+Math.cos(a)*d,y:my+Math.sin(a)*d,r:Math.random()*2.4+.5,c:Math.random()>.5?c.a:c.p,vx:(Math.random()-.5)*.11,vy:(Math.random()-.5)*.11,ox:mx+Math.cos(a)*d,oy:my+Math.sin(a)*d});}}
+  else if(type==='collapse'){for(let i=0;i<520;i++){const a=Math.random()*6.28,d=Math.random()*R*.38;pts.push({x:mx+Math.cos(a)*d,y:my+Math.sin(a)*d,r:Math.random()*2+.5,c:Math.random()>.3?c.p:c.a,ox:Math.random()*W,oy:Math.random()*H});}}
+  else if(type==='protostar'){for(let i=0;i<380;i++){const a=Math.random()*6.28,d=Math.random()*R*.3;pts.push({x:mx+Math.cos(a)*d,y:my+Math.sin(a)*d,r:Math.random()*2.2+.5,c:Math.random()>.4?c.p:'#ff6b35',ox:Math.random()*999,oy:Math.random()*999});}}
+  else if(type==='sun'){for(let i=0;i<330;i++){const a=Math.random()*6.28,d=52+Math.random()*R*.3;pts.push({x:mx+Math.cos(a)*d,y:my+Math.sin(a)*d,r:Math.random()*2+1,c:['#fbbf24','#f59e0b','#f97316','#fde68a'][~~(Math.random()*4)],ox:Math.random()*999,oy:Math.random()*999});}}
+  else if(type==='disk'){for(let i=0;i<420;i++){const a=Math.random()*6.28,d=50+Math.random()*R*.3;pts.push({r:Math.random()*2+.4,c:Math.random()>.5?c.p:c.a,_a:a,_d:d,_sq:.2});}}
+  else if(type==='planets'){for(let i=0;i<230;i++){const a=Math.random()*6.28,d=65+Math.random()*R*.28;pts.push({r:Math.random()*1.2+.3,c:c.p,_a:a,_d:d});}}
+  else if(type==='solar_system'){/* uses bgStars only */}
+}
+
+const pdata=[{n:'Me',d:.1,s:3.5,col:'#a0a0a0',sp:4.1},{n:'V',d:.15,s:5,col:'#e8c467',sp:3.2},{n:'T',d:.21,s:5.5,col:'#4a9eff',sp:2.6},{n:'Ma',d:.26,s:4,col:'#d4603a',sp:2.1},{n:'J',d:.35,s:12,col:'#c4956a',sp:1.1},{n:'S',d:.45,s:10,col:'#e8d589',sp:.8},{n:'U',d:.54,s:7.5,col:'#7dd3d8',sp:.55},{n:'N',d:.62,s:7,col:'#4466ee',sp:.4}];
+
+function drawScene(t){
+  const sc=scenes[cur],c=sc.colors,mx=W/2,my=H*.36,R=Math.min(W,H);
+  const g=c2.createRadialGradient(mx,my,0,mx,my,Math.max(W,H)*.7);
+  g.addColorStop(0,c.bg2);g.addColorStop(1,c.bg1);c2.fillStyle=g;c2.fillRect(0,0,W,H);
+  drawBgStars(t);
+  const an=sc.anim;
+
+  if(an==='nebula'){
+    // Layered nebula glow
+    c2.globalAlpha=.05+Math.sin(t*.0008)*.02;
+    const ng=c2.createRadialGradient(mx-R*.1,my,0,mx,my,R*.4);
+    ng.addColorStop(0,c.a);ng.addColorStop(.6,c.p);ng.addColorStop(1,'transparent');c2.fillStyle=ng;c2.fillRect(0,0,W,H);
+    const ng2=c2.createRadialGradient(mx+R*.15,my-R*.05,0,mx,my,R*.35);
+    ng2.addColorStop(0,'#8844aa');ng2.addColorStop(1,'transparent');c2.fillStyle=ng2;c2.globalAlpha=.03;c2.fillRect(0,0,W,H);
+    pts.forEach(p=>{p.x+=p.vx+Math.sin(t*.0005+p.ox)*.07;p.y+=p.vy+Math.cos(t*.0004+p.oy)*.07;c2.globalAlpha=.33+Math.sin(t*.002+p.ox)*.16;c2.beginPath();c2.arc(p.x,p.y,p.r,0,7);c2.fillStyle=p.c;c2.fill();});
+  }
+  else if(an==='collapse'){
+    pts.forEach(p=>{const dx=mx-p.x,dy=my-p.y,di=Math.sqrt(dx*dx+dy*dy)||1,ag=Math.atan2(dy,dx)+.5;p.x+=Math.cos(ag)*.0004*di+Math.sin(t*.001+p.ox)*.16;p.y+=Math.sin(ag)*.0004*di+Math.cos(t*.001+p.oy)*.16;if(Math.sqrt((p.x-mx)**2+(p.y-my)**2)<13){const aa=Math.random()*7,dd=85+Math.random()*R*.26;p.x=mx+Math.cos(aa)*dd;p.y=my+Math.sin(aa)*dd;}c2.globalAlpha=.42;c2.beginPath();c2.arc(p.x,p.y,p.r,0,7);c2.fillStyle=p.c;c2.fill();});
+    c2.globalAlpha=.14;const cg=c2.createRadialGradient(mx,my,0,mx,my,70);cg.addColorStop(0,'#fff');cg.addColorStop(.3,c.a);cg.addColorStop(1,'transparent');c2.fillStyle=cg;c2.beginPath();c2.arc(mx,my,70,0,7);c2.fill();
+  }
+  else if(an==='protostar'){
+    pts.forEach((p,i)=>{const dx=mx-p.x,dy=my-p.y,di=Math.sqrt(dx*dx+dy*dy)||1,ag=Math.atan2(dy,dx)+.3;p.x+=Math.cos(ag)*.0003*di;p.y+=Math.sin(ag)*.0003*di;if(Math.sqrt((p.x-mx)**2+(p.y-my)**2)<26){const aa=Math.random()*7;p.x=mx+Math.cos(aa)*(70+Math.random()*170);p.y=my+Math.sin(aa)*(70+Math.random()*170);}c2.globalAlpha=.42;c2.beginPath();c2.arc(p.x,p.y,p.r*(.7+.3*Math.sin(t*.003+i)),0,7);c2.fillStyle=p.c;c2.fill();});
+    const cs=30+Math.sin(t*.004)*4;c2.globalAlpha=.85;const cg=c2.createRadialGradient(mx,my,0,mx,my,cs*3);cg.addColorStop(0,'#fff');cg.addColorStop(.15,'#ffaa44');cg.addColorStop(.4,'#cc3311');cg.addColorStop(1,'transparent');c2.fillStyle=cg;c2.beginPath();c2.arc(mx,my,cs*3,0,7);c2.fill();
+  }
+  else if(an==='sun'){
+    // Flash effect on scene entry
+    if(flashAlpha>0){c2.globalAlpha=flashAlpha;c2.fillStyle='#fff';c2.fillRect(0,0,W,H);flashAlpha*=.97;if(flashAlpha<.01)flashAlpha=0;}
+    pts.forEach((p,i)=>{const dx=p.x-mx,dy=p.y-my,di=Math.sqrt(dx*dx+dy*dy)||1,ag=Math.atan2(dy,dx),w=Math.sin(t*.002+i*.5)*1.6;p.x=mx+Math.cos(ag+.002)*(di+w);p.y=my+Math.sin(ag+.002)*(di+w);const d2=Math.sqrt((p.x-mx)**2+(p.y-my)**2);if(d2>R*.4||d2<46){const aa=Math.random()*7,dd=50+Math.random()*R*.3;p.x=mx+Math.cos(aa)*dd;p.y=my+Math.sin(aa)*dd;}c2.globalAlpha=.42+Math.sin(t*.005+i)*.16;c2.beginPath();c2.arc(p.x,p.y,p.r,0,7);c2.fillStyle=p.c;c2.fill();});
+    const sr=40+Math.sin(t*.003)*3;c2.globalAlpha=1;const sg=c2.createRadialGradient(mx,my,0,mx,my,sr*4);sg.addColorStop(0,'#fff');sg.addColorStop(.07,'#fff7cc');sg.addColorStop(.15,'#fbbf24');sg.addColorStop(.35,'#f97316');sg.addColorStop(.6,'rgba(249,115,22,.1)');sg.addColorStop(1,'transparent');c2.fillStyle=sg;c2.beginPath();c2.arc(mx,my,sr*4,0,7);c2.fill();
+  }
+  else if(an==='disk'){
+    c2.globalAlpha=1;const sg=c2.createRadialGradient(mx,my,0,mx,my,42);sg.addColorStop(0,'#fff');sg.addColorStop(.3,'#fbbf24');sg.addColorStop(.7,'#f97316');sg.addColorStop(1,'transparent');c2.fillStyle=sg;c2.beginPath();c2.arc(mx,my,42,0,7);c2.fill();
+    pts.forEach(p=>{if(p._a!==undefined){p._a+=.001*(170/(p._d||170));p.x=mx+Math.cos(p._a)*p._d;p.y=my+Math.sin(p._a)*p._d*(p._sq||.2);}c2.globalAlpha=.38;c2.beginPath();c2.arc(p.x,p.y,p.r,0,7);c2.fillStyle=p.c;c2.fill();});
+  }
+  else if(an==='planets'){
+    c2.globalAlpha=1;const sg=c2.createRadialGradient(mx,my,0,mx,my,30);sg.addColorStop(0,'#fff');sg.addColorStop(.3,'#fbbf24');sg.addColorStop(1,'transparent');c2.fillStyle=sg;c2.beginPath();c2.arc(mx,my,30,0,7);c2.fill();
+    pts.forEach(p=>{if(p._a!==undefined){p._a+=.0005*(170/(p._d||170));p.x=mx+Math.cos(p._a)*p._d;p.y=my+Math.sin(p._a)*p._d*.2;}c2.globalAlpha=.16;c2.beginPath();c2.arc(p.x,p.y,p.r,0,7);c2.fillStyle=p.c;c2.fill();});
+    [{a:t*.0008,d:R*.1,s:6,col:'#a87832'},{a:t*.0006+2,d:R*.18,s:8,col:'#6688cc'},{a:t*.0004+4,d:R*.26,s:13,col:'#cc9966'},{a:t*.0003+1,d:R*.34,s:9,col:'#88bbcc'}].forEach(cl=>{const px=mx+Math.cos(cl.a)*cl.d,py=my+Math.sin(cl.a)*cl.d*.2;c2.globalAlpha=.7;const pg=c2.createRadialGradient(px,py,0,px,py,cl.s*1.6);pg.addColorStop(0,cl.col);pg.addColorStop(1,'transparent');c2.fillStyle=pg;c2.beginPath();c2.arc(px,py,cl.s*1.6,0,7);c2.fill();c2.globalAlpha=1;c2.beginPath();c2.arc(px,py,cl.s,0,7);c2.fillStyle=cl.col;c2.fill();});
+  }
+  else if(an==='solar_system'){
+    const sr=18;c2.globalAlpha=1;const sg=c2.createRadialGradient(mx,my,0,mx,my,sr*3);sg.addColorStop(0,'#fff');sg.addColorStop(.1,'#fef3c7');sg.addColorStop(.25,'#fbbf24');sg.addColorStop(.5,'rgba(251,191,36,.16)');sg.addColorStop(1,'transparent');c2.fillStyle=sg;c2.beginPath();c2.arc(mx,my,sr*3,0,7);c2.fill();
+    pdata.forEach(pl=>{const oR=pl.d*R;c2.beginPath();c2.ellipse(mx,my,oR,oR*.26,0,0,7);c2.strokeStyle='rgba(255,255,255,.04)';c2.lineWidth=.5;c2.stroke();const ag=t*.0005*pl.sp,px=mx+Math.cos(ag)*oR,py=my+Math.sin(ag)*oR*.26;c2.globalAlpha=1;c2.beginPath();c2.arc(px,py,pl.s,0,7);c2.fillStyle=pl.col;c2.fill();
+    if(pl.n==='S'){c2.beginPath();c2.ellipse(px,py,pl.s*2,pl.s*.4,-.3,0,7);c2.strokeStyle='rgba(232,213,137,.4)';c2.lineWidth=1.6;c2.stroke();}
+    if(pl.n==='T'){c2.globalAlpha=.1+Math.sin(t*.004)*.07;const eg=c2.createRadialGradient(px,py,pl.s,px,py,pl.s*3);eg.addColorStop(0,'#4a9eff');eg.addColorStop(1,'transparent');c2.fillStyle=eg;c2.beginPath();c2.arc(px,py,pl.s*3,0,7);c2.fill();}});
+  }
+  c2.globalAlpha=1;
+}
+
+/* ═══════ AMERICAS CONTINENT DRAWING ═══════ */
+// Draws recognizable Americas silhouette centered on the globe, focus on Argentina
+// All coordinates are normalized -1 to 1, scaled by earthR
+function drawAmericas(cx, cy, R, alpha) {
+  c2.save();
+  c2.beginPath();
+  c2.arc(cx, cy, R, 0, Math.PI * 2);
+  c2.clip();
+
+  const s = R * 0.62; // scale factor — bigger continent relative to globe
+  // Offset: Americas slightly left of center
+  const ox = cx - R * 0.05;
+  const oy = cy - R * 0.05;
+
+  function p(x, y) { return [ox + x * s, oy + y * s]; }
+
+  // ── North America ──
+  c2.globalAlpha = alpha * 0.85;
+  c2.fillStyle = '#2d8a4e';
+  c2.beginPath();
+  const na = [
+    p(-0.55, -1.1), p(-0.35, -1.25), p(-0.1, -1.3), p(0.15, -1.2),
+    p(0.4, -1.05), p(0.55, -0.85), p(0.5, -0.65), p(0.35, -0.55),
+    p(0.25, -0.45), p(0.15, -0.35), p(0.1, -0.25),
+    p(0.05, -0.15), p(-0.05, -0.1),
+    p(-0.15, -0.2), p(-0.3, -0.35), p(-0.45, -0.5),
+    p(-0.55, -0.65), p(-0.65, -0.8), p(-0.6, -0.95)
+  ];
+  c2.moveTo(...na[0]);
+  for (let i = 1; i < na.length; i++) {
+    const prev = na[i - 1], curr = na[i];
+    c2.quadraticCurveTo(
+      (prev[0] + curr[0]) / 2, (prev[1] + curr[1]) / 2,
+      ...curr
+    );
+  }
+  c2.closePath();
+  c2.fill();
+
+  // Alaska bump
+  c2.beginPath();
+  c2.moveTo(...p(-0.6, -1.05));
+  c2.quadraticCurveTo(...p(-0.75, -1.15), ...p(-0.7, -1.25));
+  c2.quadraticCurveTo(...p(-0.55, -1.2), ...p(-0.55, -1.1));
+  c2.closePath();
+  c2.fill();
+
+  // ── Central America (bridge) ──
+  c2.fillStyle = '#34a058';
+  c2.beginPath();
+  c2.moveTo(...p(-0.05, -0.1));
+  c2.quadraticCurveTo(...p(0.0, 0.0), ...p(0.05, 0.1));
+  c2.quadraticCurveTo(...p(0.1, 0.15), ...p(0.08, 0.2));
+  c2.lineTo(...p(-0.05, 0.15));
+  c2.quadraticCurveTo(...p(-0.1, 0.05), ...p(-0.1, -0.05));
+  c2.closePath();
+  c2.fill();
+
+  // ── South America ──
+  c2.fillStyle = '#2d8a4e';
+  c2.globalAlpha = alpha * 0.9;
+  c2.beginPath();
+  const sa = [
+    p(0.08, 0.2), p(0.25, 0.15), p(0.4, 0.2), p(0.45, 0.35),
+    p(0.4, 0.5), p(0.35, 0.65), p(0.25, 0.8), p(0.2, 0.95),
+    p(0.12, 1.1), p(0.05, 1.2), p(-0.02, 1.3),
+    p(-0.08, 1.25), p(-0.1, 1.1),
+    p(-0.15, 0.95), p(-0.2, 0.8), p(-0.25, 0.6),
+    p(-0.2, 0.45), p(-0.15, 0.3), p(-0.05, 0.2)
+  ];
+  c2.moveTo(...sa[0]);
+  for (let i = 1; i < sa.length; i++) {
+    const prev = sa[i - 1], curr = sa[i];
+    c2.quadraticCurveTo(
+      (prev[0] + curr[0]) / 2, (prev[1] + curr[1]) / 2,
+      ...curr
+    );
+  }
+  c2.closePath();
+  c2.fill();
+
+  // ── Argentina highlight (southern cone) ──
+  c2.fillStyle = '#5ce090';
+  c2.globalAlpha = alpha * 0.55;
+  c2.beginPath();
+  const ar = [
+    p(-0.15, 0.8), p(-0.1, 0.7), p(0.0, 0.65), p(0.1, 0.7),
+    p(0.15, 0.85), p(0.1, 1.0), p(0.05, 1.15), p(-0.02, 1.25),
+    p(-0.08, 1.2), p(-0.1, 1.05), p(-0.15, 0.9)
+  ];
+  c2.moveTo(...ar[0]);
+  for (let i = 1; i < ar.length; i++) {
+    c2.quadraticCurveTo(
+      (ar[i - 1][0] + ar[i][0]) / 2, (ar[i - 1][1] + ar[i][1]) / 2,
+      ...ar[i]
+    );
+  }
+  c2.closePath();
+  c2.fill();
+
+  c2.restore();
+  c2.globalAlpha = 1;
+}
+
+/* ═══════ FINALE ANIMATION ═══════ */
+let finaleStart=0, finalePhase=0;
+// Warp stars for travel effect
+let warpStars=[];
+
+function initFinale(){
+  finaleStart=tm;finalePhase=0;
+  warpStars=[];
+  for(let i=0;i<200;i++){
+    warpStars.push({
+      x:(Math.random()-.5)*W*1.5,
+      y:(Math.random()-.5)*H*1.5,
+      z:Math.random()*1000+100,
+      r:Math.random()*1.5+.5
+    });
+  }
+}
+
+function drawFinale(t){
+  const elapsed=(t-finaleStart)/1000;
+  const mx=W/2,my=H/2;
+
+  // Dark space bg
+  c2.fillStyle='#030810';c2.fillRect(0,0,W,H);
+  drawBgStars(t);
+
+  if(elapsed<4){
+    // Phase 1: Warp speed — stars streaking past
+    finalePhase=1;
+    const speed=Math.min(elapsed*8,25);
+    warpStars.forEach(s=>{
+      s.z-=speed;
+      if(s.z<=1){s.z=1000;s.x=(Math.random()-.5)*W*1.5;s.y=(Math.random()-.5)*H*1.5;}
+      const sx=mx+s.x/s.z*400;
+      const sy=my+s.y/s.z*400;
+      const pr=Math.max(.5,(1000-s.z)/1000*3);
+      const streak=Math.min(speed*1.5,30)*(1000-s.z)/1000;
+      const angle=Math.atan2(sy-my,sx-mx);
+      c2.globalAlpha=Math.min(1,(1000-s.z)/400);
+      c2.strokeStyle='#cde';c2.lineWidth=pr*.7;
+      c2.beginPath();c2.moveTo(sx,sy);c2.lineTo(sx-Math.cos(angle)*streak,sy-Math.sin(angle)*streak);c2.stroke();
+      c2.beginPath();c2.arc(sx,sy,pr*.5,0,7);c2.fillStyle='#fff';c2.fill();
+    });
+
+    // Earth growing ahead
+    const earthSize=Math.max(2,elapsed*12);
+    const earthAlpha=Math.min(.8,elapsed*.2);
+    c2.globalAlpha=earthAlpha;
+    const eg=c2.createRadialGradient(mx,my,0,mx,my,earthSize*2);
+    eg.addColorStop(0,'#4a9eff');eg.addColorStop(.5,'#2563eb');eg.addColorStop(.8,'#1e40af');eg.addColorStop(1,'transparent');
+    c2.fillStyle=eg;c2.beginPath();c2.arc(mx,my,earthSize*2,0,7);c2.fill();
+  }
+  else if(elapsed<6.5){
+    // Phase 2: Earth fills view, beautiful approach
+    finalePhase=2;
+    const p=(elapsed-4)/2.5; // 0→1
+    const earthR=50+p*Math.min(W,H)*.4;
+
+    // Ocean
+    c2.globalAlpha=1;
+    const eg=c2.createRadialGradient(mx-earthR*.2,my-earthR*.2,0,mx,my,earthR);
+    eg.addColorStop(0,'#60a5fa');eg.addColorStop(.3,'#3b82f6');eg.addColorStop(.6,'#2563eb');eg.addColorStop(.85,'#1e40af');eg.addColorStop(1,'#0f172a');
+    c2.fillStyle=eg;c2.beginPath();c2.arc(mx,my,earthR,0,7);c2.fill();
+
+    // Land masses — Americas with Argentina focus
+    drawAmericas(mx, my, earthR, .35 + p * .2);
+
+    // Atmosphere glow
+    c2.globalAlpha=.2;
+    c2.beginPath();c2.arc(mx,my,earthR*1.08,0,7);
+    c2.strokeStyle='#93c5fd';c2.lineWidth=earthR*.06;c2.stroke();
+
+    // Clouds (clipped to Earth)
+    c2.save();
+    c2.beginPath();c2.arc(mx,my,earthR,0,Math.PI*2);c2.clip();
+    c2.globalAlpha=.12+Math.sin(t*.002)*.04;
+    c2.fillStyle='#fff';
+    c2.beginPath();c2.ellipse(mx+earthR*.1,my-earthR*.15,earthR*.35,earthR*.06,-.2,0,7);c2.fill();
+    c2.beginPath();c2.ellipse(mx-earthR*.2,my+earthR*.2,earthR*.25,earthR*.05,.3,0,7);c2.fill();
+    c2.restore();
+  }
+  else {
+    // Phase 3: Settled — Earth with atmosphere, gentle
+    finalePhase=3;
+    const earthR=Math.min(W,H)*.32;
+
+    c2.globalAlpha=1;
+    const eg=c2.createRadialGradient(mx-earthR*.2,my-earthR*.2,0,mx,my,earthR);
+    eg.addColorStop(0,'#60a5fa');eg.addColorStop(.3,'#3b82f6');eg.addColorStop(.6,'#2563eb');eg.addColorStop(.85,'#1e40af');eg.addColorStop(1,'#0f172a');
+    c2.fillStyle=eg;c2.beginPath();c2.arc(mx,my,earthR,0,7);c2.fill();
+
+    drawAmericas(mx, my, earthR, .45);
+
+    c2.globalAlpha=.18;c2.beginPath();c2.arc(mx,my,earthR*1.08,0,7);c2.strokeStyle='#93c5fd';c2.lineWidth=earthR*.06;c2.stroke();
+    // Clouds (clipped)
+    c2.save();
+    c2.beginPath();c2.arc(mx,my,earthR,0,Math.PI*2);c2.clip();
+    c2.globalAlpha=.1+Math.sin(t*.002)*.03;
+    c2.fillStyle='#fff';
+    c2.beginPath();c2.ellipse(mx+earthR*.1,my-earthR*.15,earthR*.35,earthR*.06,-.2,0,7);c2.fill();
+    c2.beginPath();c2.ellipse(mx-earthR*.2,my+earthR*.2,earthR*.25,earthR*.05,.3,0,7);c2.fill();
+    c2.restore();
+  }
+  c2.globalAlpha=1;
+}
+
+/* ═══════ MAIN LOOP ═══════ */
+function loop(ts){
+  tm=ts||0;c2.clearRect(0,0,W,H);
+  if(mode==='story') drawScene(tm);
+  else if(mode==='finale') drawFinale(tm);
+  else if(mode==='intro'){
+    const g=c2.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*.6);
+    g.addColorStop(0,'#120830');g.addColorStop(1,'#04060f');c2.fillStyle=g;c2.fillRect(0,0,W,H);
+    drawBgStars(tm);
+  }
+  requestAnimationFrame(loop);
+}
+loop(0);
+
+/* ═══════ SCENE MGMT ═══════ */
+const overlay=document.getElementById('transitionOverlay');
+
+function transitionTo(fn){
+  overlay.classList.add('active');
+  setTimeout(()=>{fn();setTimeout(()=>overlay.classList.remove('active'),100);},450);
+}
+
+function showScene(i){
+  fullStopSpeech();cur=i;
+  spawn(scenes[i].anim,scenes[i].colors);
+  if(scenes[i].flash) flashAlpha=.9;
+  const tE=document.getElementById('sTitle'),bE=document.getElementById('sBody');
+  tE.classList.remove('show');bE.classList.remove('show');
+  setTimeout(()=>{
+    tE.textContent=scenes[i].title;
+    let body=scenes[i].text;
+    if(scenes[i].greet) body=playerName+', esta historia empieza hace mucho tiempo. '+body;
+    if(scenes[i].bye) body+=' ¿No es increíble, '+playerName+'?';
+    bE.textContent=body;
+    tE.classList.add('show');bE.classList.add('show');
+    document.getElementById('chapInd').textContent=scenes[i].label+' / '+scenes.length;
+    document.getElementById('prevB').disabled=i===0;
+    // On last scene, change "Siguiente" to "Finalizar"
+    const nb=document.getElementById('nextB');
+    if(scenes[i].last){nb.innerHTML='Finalizar <span class="ar">✦</span>';nb.disabled=false;}
+    else{nb.innerHTML='Siguiente <span class="ar">▸</span>';nb.disabled=i===scenes.length-1;}
+    document.querySelectorAll('.dot').forEach((d,j)=>d.classList.toggle('on',j===i));
+  },100);
+}
+
+function go(dir){
+  if(dir===1&&scenes[cur].last){
+    // Launch finale!
+    launchFinale();return;
+  }
+  const n=cur+dir;
+  if(n>=0&&n<scenes.length) transitionTo(()=>showScene(n));
+}
+
+function launchFinale(){
+  fullStopSpeech();mode='finale';initFinale();
+  transitionTo(()=>{
+    document.getElementById('storyScreen').classList.remove('active');
+    document.getElementById('storyScreen').style.display='none';
+    const fs=document.getElementById('finaleScreen');
+    fs.classList.remove('hidden');fs.classList.add('active');fs.style.display='flex';
+
+    // Show finale content after travel animation
+    setTimeout(()=>{
+      document.getElementById('finAvatar').innerHTML=avatars[selAv].replaceAll(SC,suitC[selCol].h);
+      document.getElementById('finTitle').textContent='¡Bienvenido a casa, '+playerName+'!';
+      document.getElementById('finTitle').classList.add('show');
+      document.getElementById('finText').textContent='Viajaste desde la nebulosa original, viste nacer el Sol, los planetas formarse, y llegaste hasta la Tierra — tu hogar en este increíble universo. Ahora cada vez que mires las estrellas, recordarás que todo empezó con una nube de polvo y un secreto.';
+      document.getElementById('finText').classList.add('show');
+      document.getElementById('restartBtn').classList.add('show');
+    },6500);
+  });
+
+  // Narrate finale
+  setTimeout(()=>{
+    const txt='¡Llegaste a la Tierra, '+playerName+'! Viajaste desde la nebulosa original, viste nacer el Sol, y ahora estás en casa. Cada vez que mires las estrellas, recordarás que todo empezó con una nube de polvo y un secreto.';
+    const u=new SpeechSynthesisUtterance(txt);
+    u.lang='es-ES';u.rate=.9;u.pitch=.85;
+    if(chosenVoice)u.voice=chosenVoice;
+    speechSynthesis.speak(u);
+  },7000);
+}
+
+function restart(){
+  fullStopSpeech();mode='intro';cur=0;
+  document.getElementById('finaleScreen').classList.add('hidden');
+  document.getElementById('finaleScreen').classList.remove('active');
+  document.getElementById('finaleScreen').style.display='none';
+  document.getElementById('finTitle').classList.remove('show');
+  document.getElementById('finText').classList.remove('show');
+  document.getElementById('restartBtn').classList.remove('show');
+  // Reset welcome
+  document.getElementById('welcomeScreen').classList.remove('hidden');
+  document.getElementById('nameInput').value='';selAv=-1;
+  document.querySelectorAll('.aopt').forEach(e=>e.classList.remove('sel'));
+  chk();
+}
+
+/* ═══════ SPEECH ═══════ */
+let speechState='idle',currentUtterance=null,chosenVoice=null,voicesReady=false;
+
+function pickSpanishVoice(){
+  const voices=speechSynthesis.getVoices();
+  if(!voices.length)return null;
+
+  // Known male Spanish voice names across iOS, macOS, Android, Windows
+  const maleNames=['jorge','andrés','andres','diego','pablo','enrique','rodrigo','juan','carlos','antonio','miguel','álvaro','alvaro','marcos','gonzalo','alejandro','héctor','hector','sergio','raúl','raul','male','masculin'];
+  const femaleNames=['mónica','monica','paulina','lupe','elena','conchita','lucía','lucia','ines','inés','elvira','sabina','penélope','penelope','female','femenin','mujer','marisol','rosa','isabel','carmen','francisca','angélica','angelica','jimena'];
+
+  const scored=voices.filter(v=>v.lang&&v.lang.startsWith('es')).map(v=>{
+    let score=0;const lang=v.lang.toLowerCase(),name=v.name.toLowerCase();
+
+    // iOS/macOS: "Jorge" (es-ES male), "Juan" (es-MX male) — target these specifically
+    if(name.includes('jorge'))score+=30;
+    if(name.includes('juan')&&lang.includes('es-mx'))score+=28;
+
+    // Regional preference
+    if(lang==='es-es')score+=20;
+    else if(lang==='es-mx')score+=18;
+    else if(lang==='es-us')score+=15;
+    else score+=10;
+
+    // General male bonus
+    if(maleNames.some(m=>name.includes(m)))score+=8;
+    // Female penalty
+    if(femaleNames.some(f=>name.includes(f)))score-=10;
+
+    // Quality engines
+    if(name.includes('google'))score+=5;
+    if(name.includes('microsoft'))score+=4;
+    if(name.includes('natural'))score+=4;
+    if(name.includes('enhanced'))score+=3;
+
+    // Network voices often higher quality
+    if(!v.localService)score+=1;
+
+    return{voice:v,score};
+  }).sort((a,b)=>b.score-a.score);
+
+  if(scored.length)console.log('🗣 Voice:',scored[0].voice.name,'('+scored[0].voice.lang+')','| All:',scored.map(s=>s.voice.name+'['+s.score+']').join(', '));
+  return scored.length?scored[0].voice:null;
+}
+
+function loadVoices(){const v=speechSynthesis.getVoices();if(v.length){chosenVoice=pickSpanishVoice();voicesReady=true;}}
+loadVoices();
+if(speechSynthesis.onvoiceschanged!==undefined)speechSynthesis.onvoiceschanged=loadVoices;
+let vp=0;const vpI=setInterval(()=>{vp++;if(voicesReady||vp>20){clearInterval(vpI);return;}loadVoices();},250);
+
+function getSpeechText(){const sc=scenes[cur];let t=sc.speech;if(sc.greet)t=playerName+', esta historia empieza hace mucho tiempo. '+t;if(sc.bye)t+=' ¿No es increíble, '+playerName+'?';return t;}
+
+function updateSpeechUI(){
+  const btn=document.getElementById('spkB'),sb=document.getElementById('stopB');
+  btn.classList.remove('playing','paused');
+  if(speechState==='idle'){btn.innerHTML='▶';sb.style.display='none';}
+  else if(speechState==='playing'){btn.innerHTML='⏸';btn.classList.add('playing');sb.style.display='flex';}
+  else if(speechState==='paused'){btn.innerHTML='▶';btn.classList.add('paused');sb.style.display='flex';}
+}
+
+function toggleSpeak(){
+  if(speechState==='idle'){
+    const u=new SpeechSynthesisUtterance(getSpeechText());
+    u.lang='es-ES';u.rate=.9;u.pitch=.85;
+    if(chosenVoice)u.voice=chosenVoice;
+    u.onend=()=>{speechState='idle';currentUtterance=null;updateSpeechUI();};
+    u.onerror=e=>{if(e.error!=='interrupted'&&e.error!=='canceled')console.warn('Speech:',e.error);speechState='idle';currentUtterance=null;updateSpeechUI();};
+    currentUtterance=u;speechSynthesis.speak(u);speechState='playing';
+  }else if(speechState==='playing'){speechSynthesis.pause();speechState='paused';}
+  else if(speechState==='paused'){speechSynthesis.resume();speechState='playing';}
+  updateSpeechUI();
+}
+function stopSpeak(){speechSynthesis.cancel();speechState='idle';currentUtterance=null;updateSpeechUI();}
+function fullStopSpeech(){speechSynthesis.cancel();speechState='idle';currentUtterance=null;updateSpeechUI();}
+
+/* ═══════ START ═══════ */
+function beginStory(){
+  playerName=document.getElementById('nameInput').value.trim();
+  if(!playerName||selAv<0)return;
+  const badge=document.getElementById('playerBadge');
+  badge.innerHTML=avatars[selAv].replaceAll(SC,suitC[selCol].h)+'<span>'+playerName+'</span>';
+  const bar=document.getElementById('dotsBar');bar.innerHTML='';
+  scenes.forEach((_,i)=>{const d=document.createElement('div');d.className='dot';d.onclick=()=>transitionTo(()=>showScene(i));bar.appendChild(d);});
+  mode='story';
+  transitionTo(()=>{
+    document.getElementById('welcomeScreen').classList.add('hidden');
+    const ss=document.getElementById('storyScreen');
+    ss.classList.remove('hidden');ss.classList.add('active');
+    showScene(0);
+  });
+}
+
+// KB & swipe
+document.addEventListener('keydown',e=>{
+  if(mode!=='story')return;
+  if(e.key==='ArrowRight')go(1);else if(e.key==='ArrowLeft')go(-1);
+  else if(e.key===' '){e.preventDefault();toggleSpeak();}
+  else if(e.key==='Escape')stopSpeak();
+});
+let tx=0;
+document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+document.addEventListener('touchend',e=>{if(mode!=='story')return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>55){dx<0?go(1):go(-1);}},{passive:true});
+
+document.addEventListener('DOMContentLoaded',initPicker);
+</script>
+</body>
+</html>
