@@ -1,0 +1,295 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+#root{font-family:sans-serif;width:100%}
+.screen{display:none;flex-direction:column}
+.screen.active{display:flex}
+
+#cover{background:#0d2b4e;border-radius:16px;overflow:hidden;position:relative;min-height:520px;align-items:center}
+.cover-sky{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.star{position:absolute;background:#fff;border-radius:50%}
+.cover-ground{position:absolute;bottom:0;left:0;right:0;height:80px;background:#071525}
+.cover-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;padding:28px 16px 0;width:100%}
+.cover-flag{display:flex;width:80px;height:7px;border-radius:4px;overflow:hidden;margin-bottom:14px}
+.cover-flag span{flex:1}
+.cover-title-top{font-size:12px;letter-spacing:3px;color:#74acdf;text-transform:uppercase;font-weight:600;margin-bottom:5px}
+.cover-title{font-size:clamp(28px,7vw,44px);font-weight:800;color:#fff;text-align:center;line-height:1.1;margin-bottom:4px}
+.cover-sub{font-size:14px;color:#74acdf;opacity:.75;margin-bottom:22px}
+.heroes-grid{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;width:100%;padding:0 14px 28px;position:relative;z-index:2}
+.hero-card{background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.14);border-radius:16px;width:clamp(130px,32vw,168px);cursor:pointer;transition:transform .15s,border-color .15s;overflow:hidden;position:relative;-webkit-tap-highlight-color:transparent}
+.hero-card:hover{transform:translateY(-4px);border-color:rgba(116,172,223,.55)}
+.hero-card:active{transform:scale(.97)}
+.hero-art{width:100%;display:block;height:clamp(130px,22vw,165px)}
+.hero-info{padding:9px 11px 11px}
+.hero-name{font-size:clamp(12px,2.5vw,14px);font-weight:700;color:#fff;margin-bottom:2px;line-height:1.2}
+.hero-role{font-size:11px;color:#74acdf;opacity:.8}
+.hero-badge{position:absolute;top:7px;right:7px;background:#c8a020;color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:9px}
+
+#story{background:#0d2b4e;border-radius:16px;overflow:hidden}
+.s-header{background:#091e3a;padding:11px 14px;display:flex;align-items:center;gap:10px}
+.btn-back{background:rgba(116,172,223,0.18);border:1px solid rgba(116,172,223,0.35);color:#74acdf;font-size:13px;font-weight:600;padding:7px 13px;border-radius:20px;cursor:pointer;white-space:nowrap}
+.btn-back:hover{background:rgba(116,172,223,0.28)}
+.s-dots{display:flex;gap:6px;flex:1;justify-content:center;align-items:center}
+.sdot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.18);transition:all .25s}
+.sdot.active{background:#74acdf;transform:scale(1.35)}
+.sdot.done{background:#2a7a4f}
+.chnum{font-size:11px;color:rgba(255,255,255,.35);margin-left:auto;white-space:nowrap}
+.scene-wrap{width:100%;overflow:hidden;background:#0d2b4e}
+.scene-svg{width:100%;display:block;height:clamp(155px,28vw,230px)}
+.s-body{padding:16px}
+.ch-badge{display:inline-flex;background:rgba(116,172,223,.15);border:1px solid rgba(116,172,223,.3);color:#74acdf;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase}
+.ch-title{font-size:clamp(17px,4vw,22px);font-weight:800;color:#fff;margin-bottom:8px;line-height:1.2}
+.ch-text{font-size:clamp(14px,3vw,16px);color:#c8dff0;line-height:1.65;margin-bottom:12px}
+.fun-fact{display:flex;align-items:flex-start;gap:9px;background:rgba(200,160,32,.1);border:1.5px solid rgba(200,160,32,.3);border-radius:12px;padding:11px 13px;margin-bottom:16px;cursor:pointer;transition:background .15s;-webkit-tap-highlight-color:transparent}
+.fun-fact:hover{background:rgba(200,160,32,.18)}
+.fact-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.fact-body{flex:1}
+.fact-text{font-size:clamp(12px,2.4vw,13px);color:#f0d080;line-height:1.5}
+.fact-hint{font-size:11px;color:rgba(240,208,128,.5);margin-top:4px;display:flex;align-items:center;gap:4px}
+.s-controls{display:flex;align-items:center;gap:8px}
+.btn-prev,.btn-next{background:rgba(255,255,255,.09);border:1.5px solid rgba(255,255,255,.25);color:#fff;border-radius:24px;padding:9px 15px;font-size:clamp(12px,2.4vw,14px);font-weight:600;cursor:pointer;transition:background .15s;white-space:nowrap}
+.btn-prev:hover,.btn-next:hover{background:rgba(255,255,255,.18)}
+.btn-prev:disabled,.btn-next:disabled{opacity:.28;cursor:not-allowed}
+.btn-speak{display:flex;align-items:center;justify-content:center;gap:7px;background:#1a6abf;border:none;color:#fff;border-radius:24px;padding:10px 0;font-size:clamp(13px,2.6vw,15px);font-weight:700;cursor:pointer;flex:1;max-width:190px;transition:background .15s}
+.btn-speak:hover{background:#1558a0}
+.btn-speak.speaking{background:#9a1e1e}
+@keyframes wav{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+.wb{width:3px;height:14px;background:#fff;border-radius:2px;display:inline-block;transform-origin:bottom;animation:wav .7s ease-in-out infinite}
+.wb:nth-child(2){animation-delay:.12s}.wb:nth-child(3){animation-delay:.24s}.wb:nth-child(4){animation-delay:.12s}
+</style>
+
+<div id="root">
+  <div id="cover" class="screen active">
+    <div class="cover-sky" id="sky"></div>
+    <div class="cover-ground"></div>
+    <div class="cover-content">
+      <div class="cover-flag"><span style="background:#74acdf"></span><span style="background:#fff"></span><span style="background:#74acdf"></span></div>
+      <div class="cover-title-top">Colección educativa</div>
+      <div class="cover-title">Héroes de<br>Argentina</div>
+      <div class="cover-sub">Elegí a tu héroe para comenzar</div>
+    </div>
+    <div class="heroes-grid" id="heroes-grid"></div>
+  </div>
+  <div id="story" class="screen">
+    <div class="s-header">
+      <button class="btn-back" id="btn-back">← Héroes</button>
+      <div class="s-dots" id="sdots"></div>
+      <div class="chnum" id="chnum"></div>
+    </div>
+    <div class="scene-wrap"><svg id="scene-svg" class="scene-svg" xmlns="http://www.w3.org/2000/svg"></svg></div>
+    <div class="s-body">
+      <div id="ch-badge" class="ch-badge"></div>
+      <div id="ch-title" class="ch-title"></div>
+      <div id="ch-text" class="ch-text"></div>
+      <div class="fun-fact" id="fun-fact">
+        <span class="fact-icon" id="fact-icon"></span>
+        <div class="fact-body">
+          <div class="fact-text" id="fact-text"></div>
+          <div class="fact-hint" id="fact-hint"><span style="font-size:14px">🔊</span> Tocá para escuchar el dato curioso</div>
+        </div>
+      </div>
+      <div class="s-controls">
+        <button class="btn-prev" id="btn-prev">← Anterior</button>
+        <button class="btn-speak" id="btn-speak"><span style="font-size:16px">🔊</span><span id="speak-lbl"> Escuchar</span></button>
+        <button class="btn-next" id="btn-next">Siguiente →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+var HEROES = [
+  {
+    id:'sm', name:'José de San Martín', role:'El Gran Libertador', badge:'★ Nuevo',
+    cardBg:'#0f3460', cardBg2:'#0a2040',
+    drawCard: function(s){ s.innerHTML='<rect width="168" height="165" fill="#0f3460"/><rect y="115" width="168" height="50" fill="#0a2040"/><polygon points="0,165 38,88 76,165" fill="#1a3a6a"/><polygon points="48,165 96,68 138,165" fill="#1e4578"/><polygon points="106,165 145,92 168,165" fill="#1a3a6a"/><ellipse cx="84" cy="52" rx="15" ry="17" fill="#e8c898"/><rect x="72" y="65" width="24" height="38" rx="2" fill="#1a3a8a"/><rect x="74" y="70" width="20" height="5" fill="#c8a020"/><rect x="74" y="77" width="20" height="5" fill="#c8a020"/><path d="M65,65 L72,65 L72,88 L65,88 Q61,88 61,84 L61,69 Q61,65 65,65Z" fill="#1a3a8a"/><path d="M96,65 L103,65 Q107,65 107,69 L107,84 Q107,88 103,88 L96,88Z" fill="#1a3a8a"/><rect x="75" y="103" width="9" height="16" rx="1" fill="#0f2050"/><rect x="84" y="103" width="9" height="16" rx="1" fill="#0f2050"/><path d="M76,46 Q84,36 92,46" fill="none" stroke="#7a5030" stroke-width="1.5"/><circle cx="80" cy="51" r="1.8" fill="#2a1808"/><circle cx="88" cy="51" r="1.8" fill="#2a1808"/><rect x="76" y="38" width="16" height="14" rx="8" fill="#c8a020"/><rect x="79" y="36" width="10" height="5" rx="2" fill="#a08010"/><text x="84" y="148" text-anchor="middle" font-size="10" fill="#74acdf" font-weight="700" font-family="sans-serif">1778 – 1850</text>'; },
+    chapters:[
+      {badge:'Cap. 1 · Nacimiento',title:'El niño de Yapeyú',text:'En el año 1778, en un pequeño pueblo llamado Yapeyú, a orillas del río Uruguay, nació José Francisco de San Martín. Era el menor de cinco hermanos. Su papá era un oficial español y su mamá una mujer muy valiente. Desde chiquito, José miraba el río y soñaba con grandes aventuras.',icon:'💧',fact:'Yapeyú está en la provincia de Corrientes. ¡Hoy todavía podés visitar la casa donde nació San Martín!',
+      draw:function(s){s.setAttribute('viewBox','0 0 600 220');s.innerHTML='<rect width="600" height="220" fill="#0d4a7a"/><rect y="148" width="600" height="72" fill="#0a3560"/><circle cx="480" cy="52" r="30" fill="#fff8e0" opacity="0.9"/><circle cx="480" cy="52" r="22" fill="#fff5c0"/><path d="M480,30 L484,43 L498,43 L487,51 L491,64 L480,56 L469,64 L473,51 L462,43 L476,43Z" fill="#f0c030"/><path d="M0,150 Q80,130 160,147 Q240,164 320,142 Q400,120 480,140 Q540,155 600,138 L600,220 L0,220Z" fill="#1a5a9a" opacity="0.65"/><path d="M0,162 Q100,148 200,162 Q300,176 400,154 Q500,134 600,152 L600,220 L0,220Z" fill="#0d3a6a" opacity="0.8"/><path d="M55,104 L55,150 L175,150 L175,104 L115,72Z" fill="#c8a028"/><rect x="68" y="104" width="94" height="46" fill="#b89020"/><rect x="84" y="109" width="25" height="20" rx="2" fill="#e8c868" opacity="0.5"/><rect x="118" y="109" width="25" height="20" rx="2" fill="#e8c868" opacity="0.5"/><rect x="96" y="126" width="28" height="24" fill="#8a6818"/><path d="M82,72 Q115,50 148,72" fill="none" stroke="#a08020" stroke-width="2"/><rect x="285" y="62" width="3" height="90" fill="#8b6910"/><rect x="288" y="65" width="44" height="28" fill="#74acdf"/><rect x="288" y="65" width="44" height="9" fill="#fff"/><rect x="288" y="84" width="44" height="9" fill="#fff"/><text x="300" y="182" text-anchor="middle" font-size="13" fill="#fff" font-weight="700" font-family="sans-serif">Yapeyú, 1778</text><ellipse cx="430" cy="132" rx="18" ry="16" fill="#e8c898"/><rect x="415" y="145" width="30" height="34" rx="2" fill="#3a5a2a"/><rect x="415" y="151" width="30" height="5" fill="#c8a020"/><rect x="422" y="179" width="9" height="14" rx="1" fill="#1a2a4a"/><rect x="433" y="179" width="9" height="14" rx="1" fill="#1a2a4a"/><path d="M422,125 Q430,113 438,125" fill="none" stroke="#8a5030" stroke-width="1.8"/><circle cx="426" cy="129" r="1.8" fill="#2a1008"/><circle cx="434" cy="129" r="1.8" fill="#2a1008"/>';}},
+      {badge:'Cap. 2 · El soldado',title:'Aprendiendo a ser soldado',text:'Cuando José tenía solo 11 años, viajó a España para estudiar en la escuela militar. Allí aprendió a montar a caballo, a usar espadas y a liderar ejércitos. Fue un soldado muy valiente y peleó en muchas batallas en Europa. Pero su corazón siempre pensaba en América.',icon:'⚔️',fact:'San Martín estudió en el Real Seminario de Nobles en Madrid, ¡con la misma edad que muchos chicos hoy!',
+      draw:function(s){s.setAttribute('viewBox','0 0 600 220');s.innerHTML='<rect width="600" height="220" fill="#1e2d5a"/><rect y="158" width="600" height="62" fill="#141d3a"/><path d="M0,158 Q100,140 200,155 Q300,170 400,148 Q500,128 600,150 L600,220 L0,220Z" fill="#0f1830" opacity="0.8"/><rect x="352" y="60" width="138" height="102" rx="7" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.11)" stroke-width="1"/><text x="421" y="90" text-anchor="middle" font-size="13" fill="#a0c0e8" font-weight="700" font-family="sans-serif">Academia Militar</text><text x="421" y="108" text-anchor="middle" font-size="11" fill="#6a9ac8" font-family="sans-serif">Madrid, España</text><text x="421" y="142" text-anchor="middle" font-size="26" fill="#c8a020" font-family="sans-serif">🎖</text><ellipse cx="153" cy="104" rx="19" ry="22" fill="#e8c898"/><rect x="137" y="122" width="32" height="48" rx="2" fill="#2a4a8a"/><rect x="139" y="128" width="28" height="7" fill="#c8a020"/><rect x="139" y="138" width="28" height="7" fill="#c8a020"/><rect x="141" y="170" width="11" height="20" rx="1" fill="#141d3a"/><rect x="154" y="170" width="11" height="20" rx="1" fill="#141d3a"/><path d="M143,96 Q153,80 163,96" fill="none" stroke="#7a5030" stroke-width="2"/><circle cx="148" cy="101" r="2" fill="#2a1008"/><circle cx="158" cy="101" r="2" fill="#2a1008"/><rect x="148" y="86" width="10" height="14" rx="5" fill="#c8a020"/>';}},
+      {badge:'Cap. 3 · El regreso',title:'¡De vuelta en América!',text:'En 1812, San Martín llegó a Buenos Aires y formó el famoso Regimiento de Granaderos a Caballo. En la batalla de San Lorenzo derrotaron brillantemente al enemigo.',icon:'🐎',fact:'Los Granaderos a Caballo siguen existiendo hoy: son la guardia oficial del presidente de Argentina.',
+      draw:function(s){s.setAttribute('viewBox','0 0 600 220');s.innerHTML='<rect width="600" height="220" fill="#0d3060"/><rect y="150" width="600" height="70" fill="#091e42"/><path d="M0,152 Q80,130 160,147 Q240,164 320,142 Q400,120 480,142 Q540,158 600,140 L600,220 L0,220Z" fill="#0a2850" opacity="0.9"/><rect x="145" y="70" width="52" height="88" rx="2" fill="#9a7820"/><rect x="118" y="65" width="106" height="13" rx="2" fill="#7a5810"/><polygon points="198,24 226,65 170,65" fill="#c8a828"/><rect x="163" y="100" width="22" height="38" fill="#7a5010"/><rect x="247" y="24" width="3" height="116" fill="#8b6814"/><rect x="250" y="27" width="48" height="32" fill="#74acdf"/><rect x="250" y="27" width="48" height="11" fill="#fff"/><rect x="250" y="48" width="48" height="11" fill="#fff"/><ellipse cx="355" cy="130" rx="20" ry="19" fill="#e8c898"/><rect x="338" y="146" width="34" height="44" rx="2" fill="#1a3a8a"/><rect x="340" y="152" width="30" height="7" fill="#c8a020"/><rect x="340" y="162" width="30" height="7" fill="#c8a020"/><rect x="342" y="190" width="11" height="18" rx="1" fill="#091e42"/><rect x="355" y="190" width="11" height="18" rx="1" fill="#091e42"/><path d="M344,123 Q355,107 366,123" fill="none" stroke="#8a6030" stroke-width="2"/><circle cx="350" cy="128" r="2" fill="#2a1008"/><circle cx="360" cy="128" r="2" fill="#2a1008"/><text x="300" y="210" text-anchor="middle" font-size="12" fill="#74acdf" font-family="sans-serif">Buenos Aires, 1812</text>';}},
+      {badge:'Cap. 4 · Los Andes',title:'Cruzando los Andes',text:'En 1817, San Martín cruzó las altísimas montañas de los Andes con más de cinco mil soldados, mulas, cañones y caballos. Fue el cruce más heroico de la historia de América del Sur.',icon:'⛰️',fact:'Los Andes tienen picos de más de 6.000 metros. ¡Es como escalar el Aconcagua con todo un ejército!',
+      draw:function(s){s.setAttribute('viewBox','0 0 600 220');s.innerHTML='<rect width="600" height="220" fill="#101828"/><polygon points="0,220 75,72 150,220" fill="#1e2e4a"/><polygon points="70,220 175,35 265,220" fill="#28385a"/><polygon points="160,220 285,12 385,220" fill="#324868"/><polygon points="270,220 380,45 465,220" fill="#28385a"/><polygon points="380,220 460,75 540,220" fill="#1e2e4a"/><ellipse cx="285" cy="38" rx="28" ry="12" fill="#fff" opacity="0.88"/><ellipse cx="175" cy="60" rx="18" ry="8" fill="#fff" opacity="0.65"/><ellipse cx="380" cy="58" rx="20" ry="8" fill="#fff" opacity="0.7"/><path d="M20,172 Q80,155 150,168 Q220,181 300,162 Q380,143 460,162 Q530,178 590,160" fill="none" stroke="#c8a020" stroke-width="3" stroke-dasharray="10,5"/><circle cx="22" cy="173" r="6" fill="#c8a020"/><circle cx="590" cy="161" r="6" fill="#c8a020"/><text x="22" y="192" text-anchor="middle" font-size="10" fill="#c8a020" font-family="sans-serif">Mendoza</text><text x="580" y="180" text-anchor="middle" font-size="10" fill="#c8a020" font-family="sans-serif">Chile</text><text x="300" y="210" text-anchor="middle" font-size="13" fill="#c8a868" font-weight="700" font-family="sans-serif">El Gran Cruce · 1817</text>';}},
+      {badge:'Cap. 5 · La libertad',title:'¡Libertad para tres países!',text:'Gracias a San Martín, Argentina, Chile y Perú conquistaron su libertad. No quería gloria ni riquezas: solo quería que la gente de América pudiera vivir libre.',icon:'🌟',fact:'San Martín murió en Francia en 1850, lejos de su patria, pero en el corazón de todos los argentinos.',
+      draw:function(s){s.setAttribute('viewBox','0 0 600 220');s.innerHTML='<rect width="600" height="220" fill="#0d2248"/><circle cx="300" cy="88" r="70" fill="#1a4a8a" opacity="0.2"/><circle cx="300" cy="88" r="48" fill="#1a4a8a" opacity="0.22"/><circle cx="300" cy="88" r="28" fill="#f0c020" opacity="0.15"/><circle cx="300" cy="88" r="18" fill="#fff8c0" opacity="0.9"/><path d="M286,88 L292,98 L314,70 L292,86Z" fill="#c8a020"/><circle cx="300" cy="88" r="8" fill="#f0c020"/><line x1="300" y1="30" x2="300" y2="56" stroke="#f0c020" stroke-width="1.5" opacity="0.6"/><line x1="300" y1="120" x2="300" y2="148" stroke="#f0c020" stroke-width="1.5" opacity="0.6"/><line x1="240" y1="88" x2="266" y2="88" stroke="#f0c020" stroke-width="1.5" opacity="0.6"/><line x1="334" y1="88" x2="360" y2="88" stroke="#f0c020" stroke-width="1.5" opacity="0.6"/><rect x="88" y="148" width="80" height="50" rx="5" fill="#0a1830"/><rect x="89" y="149" width="78" height="17" fill="#74acdf"/><rect x="89" y="166" width="78" height="16" fill="#fff"/><rect x="89" y="182" width="78" height="15" fill="#74acdf"/><circle cx="128" cy="158" r="7" fill="#f0c020" opacity="0.9"/><text x="128" y="208" text-anchor="middle" font-size="10" fill="#74acdf" font-weight="700" font-family="sans-serif">Argentina</text><rect x="260" y="158" width="80" height="50" rx="5" fill="#0a1830"/><rect x="261" y="159" width="27" height="48" fill="#cc0001"/><rect x="288" y="159" width="25" height="48" fill="#fff"/><rect x="313" y="159" width="27" height="48" fill="#cc0001"/><text x="300" y="220" text-anchor="middle" font-size="10" fill="#74acdf" font-weight="700" font-family="sans-serif">Chile</text><rect x="432" y="148" width="80" height="50" rx="5" fill="#0a1830"/><rect x="433" y="149" width="78" height="17" fill="#cc0001"/><rect x="433" y="166" width="78" height="16" fill="#fff"/><rect x="433" y="182" width="78" height="17" fill="#cc0001"/><text x="472" y="212" text-anchor="middle" font-size="10" fill="#74acdf" font-weight="700" font-family="sans-serif">Perú</text><text x="300" y="138" text-anchor="middle" font-size="14" fill="#f0d060" font-weight="800" font-family="sans-serif">El Gran Libertador</text>';}}
+    ]
+  },
+  {
+    id:'mb', name:'Manuel Belgrano', role:'Creador de la Bandera', badge:'Nuevo',
+    drawCard: function(s){ s.innerHTML='<rect width="168" height="165" fill="#1a3a1a"/><rect y="115" width="168" height="50" fill="#0f2510"/><rect x="44" y="18" width="80" height="52" fill="#74acdf"/><rect x="44" y="18" width="80" height="17" fill="#fff"/><rect x="44" y="53" width="80" height="17" fill="#fff"/><circle cx="84" cy="44" r="12" fill="#f0c020" opacity="0.95"/><path d="M76,44 L79,52 L88,52 L81,57 L84,65 L76,60 L68,65 L71,57 L64,52 L73,52Z" fill="#c8a010"/><ellipse cx="84" cy="96" rx="14" ry="16" fill="#e8c898"/><rect x="72" y="108" width="24" height="36" rx="2" fill="#2a4a2a"/><rect x="74" y="114" width="20" height="5" fill="#c8a020"/><rect x="74" y="123" width="20" height="5" fill="#c8a020"/><rect x="75" y="144" width="9" height="14" rx="1" fill="#0f2510"/><rect x="84" y="144" width="9" height="14" rx="1" fill="#0f2510"/><path d="M76,90 Q84,78 92,90" fill="none" stroke="#7a5030" stroke-width="1.5"/><circle cx="80" cy="94" r="1.8" fill="#2a1808"/><circle cx="88" cy="94" r="1.8" fill="#2a1808"/><text x="84" y="155" text-anchor="middle" font-size="10" fill="#7acc7a" font-weight="700" font-family="sans-serif">1770 – 1820</text>'; },
+    chapters:[
+      {badge:'Cap. 1 · Nacimiento',title:'El niño estudioso',text:'Manuel Belgrano nació el 3 de junio de 1770 en Buenos Aires. Era un chico muy curioso y estudioso. Su familia pudo mandarlo a estudiar a España, donde aprendió economía, leyes y filosofía. Soñaba con un país más justo.',icon:'📚',fact:'Belgrano habló varios idiomas: castellano, latín, francés e italiano. ¡Era muy inteligente!',
+      draw:function(s){s.setAttribute('viewBox','0 0 600 220');s.innerHTML='<rect width="600" height="220" fill="#1a3a1a"/><rect y="150" width="600" height="70" fill="#0f2510"/><path d="M0,152 Q100,132 200,148 Q300,164 400,142 Q500,122 600,144 L600,220 L0,220Z" fill="#0f2010" opacity="0.8"/><rect x="80" y="45" width="145" height="100" rx="4" fill="#1a4a1a"/><rect x="85" y="50" width="135" height="90" rx="2" fill="#2a5a2a"/><rect x="93" y="60" width="120" height="7" rx="2" fill="#c8e8c8" opacity="0.55"/><rect x="93" y="71" width="98" height="3" rx="1" fill="#a0c8a0" opacity="0.4"/><rect x="93" y="78" width="112" height="3" rx="1" fill="#a0c8a0" opacity="0.4"/><rect x="93" y="85" width="88" height="3" rx="1" fill="#a0c8a0" opacity="0.4"/><rect x="93" y="92" width="104" height="3" rx="1" fill="#a0c8a0" opacity="0.4"/><text x="152" y="125" text-anchor="middle" font-size="12" fill="#7acc7a" font-weight="700" font-family="sans-serif">Telégrafo Mercantil</text><ellipse cx="420" cy="118" rx="20" ry="19" fill="#e8c898"/><rect x="403" y="134" width="34" height="42" rx="2" fill="#2a4a2a"/><rect x="405" y="140" width="30" height="6" fill="#c8a020"/><rect x="405" y="150" width="30" height="6" fill="#c8a020"/><rect x="406" y="176" width="10" height="16" rx="1" fill="#0f2510"/><rect x="418" y="176" width="10" height="16" rx="1" fill="#0f2510"/><path d="M411,111 Q420,98 429,111" fill="none" stroke="#7a5030" stroke-width="1.8"/><circle cx="416" cy="116" r="1.8" fill="#2a1008"/><circle cx="424" cy="116" r="1.8" fill="#2a1008"/><text x="300" y="205" text-anchor="middle" font-size="12" fill="#7acc7a" font-family="sans-serif">Buenos Aires, 1770</text>';}},
+      {badge:'Cap. 2 · Las ideas',title:'Las ideas que cambian el mundo',text:'Belgrano creó uno de los primeros periódicos del país. Escribía sus ideas para que todos pudieran leerlas. Quería que los niños fueran a la escuela. Donó todo su dinero de premios militares para construir cuatro escuelas.',icon:'📰',fact:'Belgrano donó el dinero de sus premios militares para construir cuatro escuelas en el norte de Argentina.',
+      draw:function(s){s.setAttribute('viewBox','0 0 600 220');s.innerHTML='<rect width="600" height="220" fill="#1a2a1a"/><rect x="55" y="45" width="170" height="125" rx="4" fill="#c8a028"/><rect x="60" y="50" width="160" height="115" rx="2" fill="#f0e0a8"/><rect x="68" y="58" width="144" height="6" rx="2" fill="#8a6010" opacity="0.6"/><rect x="68" y="68" width="130" height="3" rx="1" fill="#a07820" opacity="0.5"/><rect x="68" y="74" width="144" height="3" rx="1" fill="#a07820" opacity="0.5"/><rect x="68" y="80" width="110" height="3" rx="1" fill="#a07820" opacity="0.5"/><text x="140" y="130" text-anchor="middle" font-size="11" fill="#5a3808" font-weight="700" font-family="sans-serif">Correo de Comercio</text><text x="140" y="148" text-anchor="middle" font-size="11" fill="#7a5010" font-family="sans-serif">1810</text><rect x="310" y="30" width="38" height="52" rx="3" fill="#c8a020" opacity="0.7"/><rect x="362" y="44" width="38" height="52" rx="3" fill="#c8a020" opacity="0.55"/><rect x="414" y="37" width="38" height="52" rx="3" fill="#c8a020" opacity="0.65"/><rect x="466" y="50" width="38" height="52" rx="3" fill="#c8a020" opacity="0.5"/><text x="329" y="98" text-anchor="middle" font-size="9" fill="#5a3808" font-family="sans-serif">Escuela</text><text x="381" y="112" text-anchor="middle" font-size="9" fill="#5a3808" font-family="sans-serif">Escuela</text><text x="433" y="105" text-anchor="middle" font-size="9" fill="#5a3808" font-family="sans-serif">Escuela</text><text x="485" y="118" text-anchor="middle" font-size="9" fill="#5a3808" font-family="sans-serif">Escuela</text><text x="300" y="200" text-anchor="middle" font-size="12" fill="#7acc7a" font-family="sans-serif">Cuatro escuelas para Argentina</text>';}},
+      {badge:'Cap. 3 · La bandera',title:'Nace la bandera argentina',text:'El 27 de febrero de 1812, a orillas del río Paraná, Manuel Belgrano desplegó por primera vez la bandera celeste y blanca. Eran los colores del cielo y las nubes. Los soldados se emocionaron mucho.',icon:'🏳️',fact:'El 27 de febrero se celebra el Día de la Bandera en toda Argentina. ¡Es feriado nacional!',
+      draw:function(s){s.setAttribute('viewBox','0 0 600 220');s.innerHTML='<rect width="600" height="220" fill="#0d3060"/><rect y="152" width="600" height="68" fill="#091e42"/><path d="M0,154 Q100,134 200,150 Q300,166 400,144 Q500,124 600,146 L600,220 L0,220Z" fill="#0a2850" opacity="0.9"/><rect x="248" y="22" width="4" height="138" fill="#8b6814"/><rect x="252" y="25" width="140" height="85" fill="#74acdf"/><rect x="252" y="25" width="140" height="28" fill="#fff"/><rect x="252" y="82" width="140" height="28" fill="#fff"/><circle cx="322" cy="67" r="22" fill="#f0c020" opacity="0.95"/><path d="M310,67 L314,78 L325,78 L316,85 L319,96 L310,89 L301,96 L304,85 L295,78 L306,78Z" fill="#c8a010"/><ellipse cx="340" cy="148" rx="22" ry="20" fill="#e8c898"/><rect x="322" y="164" width="36" height="42" rx="2" fill="#1a3a8a"/><rect x="324" y="170" width="32" height="7" fill="#c8a020"/><rect x="324" y="181" width="32" height="7" fill="#c8a020"/><rect x="327" y="206" width="12" height="14" rx="1" fill="#091e42"/><rect x="341" y="206" width="12" height="14" rx="1" fill="#091e42"/><path d="M330,142 Q340,128 350,142" fill="none" stroke="#8a5030" stroke-width="2"/><circle cx="336" cy="146" r="2" fill="#2a1008"/><circle cx="345" cy="146" r="2" fill="#2a1008"/><text x="140" y="195" text-anchor="middle" font-size="11" fill="#74acdf" font-family="sans-serif">Rosario, 27 feb 1812</text>';}},
+      {badge:'Cap. 4 · El general',title:'Defendiendo la patria',text:'Belgrano fue un valiente general. Lideró el Éxodo Jujeño: cuando el enemigo avanzaba, pidió a toda la población que abandonara sus casas. Fue un acto enorme de sacrificio y patriotismo.',icon:'🦁',fact:'El 23 de agosto se celebra el Día del Éxodo Jujeño en la provincia de Jujuy.',
+      draw:function(s){s.setAttribute('viewBox','0 0 600 220');s.innerHTML='<rect width="600" height="220" fill="#2a1a0a"/><rect y="150" width="600" height="70" fill="#1a0f05"/><path d="M0,152 Q80,135 160,150 Q240,165 320,145 Q400,125 480,148 Q540,163 600,145 L600,220 L0,220Z" fill="#120a03" opacity="0.85"/><polygon points="0,220 60,85 120,220" fill="#3a2510"/><polygon points="80,220 160,58 230,220" fill="#4a3218"/><polygon points="350,220 430,65 510,220" fill="#4a3218"/><polygon points="440,220 510,88 580,220" fill="#3a2510"/><path d="M150,160 Q220,145 300,158 Q380,171 430,155" fill="none" stroke="#c8a020" stroke-width="2.5" stroke-dasharray="8,4"/><ellipse cx="300" cy="128" rx="22" ry="20" fill="#e8c898"/><rect x="281" y="145" width="38" height="44" rx="2" fill="#5a3a18"/><rect x="283" y="152" width="34" height="7" fill="#c8a020"/><rect x="283" y="163" width="34" height="7" fill="#c8a020"/><rect x="286" y="189" width="12" height="16" rx="1" fill="#1a0f05"/><rect x="300" y="189" width="12" height="16" rx="1" fill="#1a0f05"/><path d="M290,122 Q300,108 310,122" fill="none" stroke="#8a5030" stroke-width="2"/><circle cx="295" cy="126" r="2" fill="#2a1008"/><circle cx="305" cy="126" r="2" fill="#2a1008"/><text x="300" y="210" text-anchor="middle" font-size="12" fill="#d4a050" font-family="sans-serif">El Éxodo Jujeño · 1812</text>';}},
+      {badge:'Cap. 5 · Su legado',title:'Un héroe que vivió por su país',text:'Manuel Belgrano murió el 20 de junio de 1820, pobre y enfermo, después de entregar todo por su patria. No solo nos dio nuestros colores nacionales: nos enseñó que el saber y la honestidad construyen una nación.',icon:'🌠',fact:'Belgrano fue tan generoso que cuando murió casi no tenía dinero. Había donado todo al país que amaba.',
+      draw:function(s){s.setAttribute('viewBox','0 0 600 220');s.innerHTML='<rect width="600" height="220" fill="#1a2a1a"/><circle cx="300" cy="88" r="70" fill="#2a5a2a" opacity="0.2"/><circle cx="300" cy="88" r="48" fill="#2a5a2a" opacity="0.22"/><rect x="248" y="22" width="4" height="116" fill="#8b6814"/><rect x="252" y="25" width="110" height="66" fill="#74acdf"/><rect x="252" y="25" width="110" height="22" fill="#fff"/><rect x="252" y="69" width="110" height="22" fill="#fff"/><circle cx="307" cy="58" r="16" fill="#f0c020" opacity="0.95"/><path d="M299,58 L302,66 L310,66 L304,71 L306,79 L299,74 L292,79 L294,71 L288,66 L296,66Z" fill="#c8a010"/><rect x="232" y="152" width="136" height="42" rx="5" fill="#1a3a1a" stroke="#3a6a3a" stroke-width="1"/><text x="300" y="173" text-anchor="middle" font-size="13" fill="#7acc7a" font-weight="700" font-family="sans-serif">20 de junio</text><text x="300" y="188" text-anchor="middle" font-size="11" fill="#5aaa5a" font-family="sans-serif">Día de la Bandera</text><text x="300" y="210" text-anchor="middle" font-size="12" fill="#7acc7a" font-family="sans-serif">Manuel Belgrano · 1770 – 1820</text>';}}
+    ]
+  },
+  {
+    id:'ja', name:'Juan B. Alberdi', role:'Padre de la Constitución', badge:'Nuevo',
+    drawCard: function(s){ s.innerHTML='<rect width="168" height="165" fill="#3a1a4a"/><rect y="115" width="168" height="50" fill="#250f33"/><rect x="32" y="16" width="104" height="72" rx="4" fill="#1a0f2a"/><rect x="36" y="20" width="96" height="64" rx="2" fill="#2a1545"/><rect x="42" y="27" width="84" height="4" rx="1" fill="#c8a0e0" opacity="0.55"/><rect x="42" y="35" width="68" height="3" rx="1" fill="#a080c0" opacity="0.4"/><rect x="42" y="41" width="78" height="3" rx="1" fill="#a080c0" opacity="0.4"/><rect x="42" y="47" width="62" height="3" rx="1" fill="#a080c0" opacity="0.4"/><rect x="42" y="53" width="73" height="3" rx="1" fill="#a080c0" opacity="0.4"/><text x="84" y="72" text-anchor="middle" font-size="11" fill="#c8a0f0" font-weight="700" font-family="sans-serif">CONSTITUCIÓN</text><ellipse cx="84" cy="100" rx="14" ry="16" fill="#e8c898"/><rect x="72" y="112" width="24" height="28" rx="2" fill="#4a2a6a"/><rect x="74" y="118" width="20" height="5" fill="#c8a020"/><rect x="75" y="140" width="9" height="14" rx="1" fill="#250f33"/><rect x="84" y="140" width="9" height="14" rx="1" fill="#250f33"/><path d="M76,94 Q84,82 92,94" fill="none" stroke="#7a5030" stroke-width="1.5"/><circle cx="80" cy="98" r="1.8" fill="#2a1808"/><circle cx="88" cy="98" r="1.8" fill="#2a1808"/><text x="84" y="155" text-anchor="middle" font-size="10" fill="#c8a0f0" font-weight="700" font-family="sans-serif">1810 – 1884</text>'; },
+    chapters:[
+      {badge:'Cap. 1 · Nacimiento',title:'El niño de Tucumán',text:'Juan Bautista Alberdi nació el 29 de agosto de 1810 en Tucumán, el mismo año en que Argentina comenzó su camino hacia la libertad. Quedó huérfano de madre siendo muy pequeño. Era un niño curioso que amaba la música y los libros.',icon:'🎵',fact:'Alberdi era un excelente pianista. ¡Tocaba tan bien que dio conciertos públicos cuando era joven!',
+      draw:function(s){s.setAttribute('viewBox','0 0 600 220');s.innerHTML='<rect width="600" height="220" fill="#2a1a3a"/><rect y="150" width="600" height="70" fill="#1a0f28"/><path d="M0,152 Q100,132 200,148 Q300,164 400,142 Q500,122 600,144 L600,220 L0,220Z" fill="#150a20" opacity="0.85"/><circle cx="480" cy="50" r="26" fill="#fff8e0" opacity="0.88"/><circle cx="480" cy="50" r="18" fill="#fff5c0"/><path d="M480,30 L483,42 L496,42 L486,50 L489,62 L480,55 L471,62 L474,50 L464,42 L477,42Z" fill="#f0c030"/><rect x="120" y="56" width="55" height="18" rx="3" fill="#c8a0e0" opacity="0.6"/><text x="147" y="69" text-anchor="middle" font-size="11" fill="#2a1545" font-weight="700" font-family="sans-serif">Piano</text><ellipse cx="300" cy="118" rx="22" ry="21" fill="#e8c898"/><rect x="281" y="136" width="38" height="44" rx="2" fill="#3a1a5a"/><rect x="283" y="143" width="34" height="7" fill="#c8a020"/><rect x="283" y="154" width="34" height="7" fill="#c8a020"/><rect x="286" y="180" width="12" height="16" rx="1" fill="#1a0f28"/><rect x="300" y="180" width="12" height="16" rx="1" fill="#1a0f28"/><path d="M290,112 Q300,98 310,112" fill="none" stroke="#8a5030" stroke-width="2"/><circle cx="296" cy="116" r="2" fill="#2a1008"/><circle cx="306" cy="116" r="2" fill="#2a1008"/><text x="300" y="210" text-anchor="middle" font-size="12" fill="#c8a0f0" font-family="sans-serif">Tucumán, 1810</text>';}},
+      {badge:'Cap. 2 · El estudiante',title:'Aprendiendo en Buenos Aires',text:'Alberdi viajó a Buenos Aires para estudiar leyes y filosofía. Allí conoció a los pensadores más importantes de su época. Leía todo lo que podía: libros de Europa, ideas nuevas, constituciones de otros países.',icon:'🏛️',fact:'Alberdi estudió en la Universidad de Buenos Aires cuando tenía apenas 14 años. ¡Era muy adelantado para su edad!',
+      draw:function(s){s.setAttribute('viewBox','0 0 600 220');s.innerHTML='<rect width="600" height="220" fill="#1e1a3a"/><rect y="155" width="600" height="65" fill="#12102a"/><rect x="50" y="40" width="220" height="130" rx="4" fill="#1a1535"/><rect x="55" y="45" width="210" height="120" rx="2" fill="#221a42"/><rect x="65" y="55" width="190" height="6" rx="2" fill="#c8a0f0" opacity="0.55"/><rect x="65" y="66" width="155" height="3" rx="1" fill="#a080d0" opacity="0.4"/><rect x="65" y="73" width="175" height="3" rx="1" fill="#a080d0" opacity="0.4"/><rect x="65" y="80" width="140" height="3" rx="1" fill="#a080d0" opacity="0.4"/><rect x="65" y="87" width="165" height="3" rx="1" fill="#a080d0" opacity="0.4"/><text x="160" y="125" text-anchor="middle" font-size="13" fill="#c8a0f0" font-weight="700" font-family="sans-serif">CONSTITUCIÓN</text><text x="160" y="143" text-anchor="middle" font-size="10" fill="#9070c0" font-family="sans-serif">de los EE.UU.</text><rect x="290" y="40" width="150" height="110" rx="4" fill="#1a1535"/><rect x="295" y="45" width="140" height="100" rx="2" fill="#221a42"/><text x="365" y="90" text-anchor="middle" font-size="11" fill="#c8a0f0" font-weight="700" font-family="sans-serif">Derechos del</text><text x="365" y="104" text-anchor="middle" font-size="11" fill="#c8a0f0" font-weight="700" font-family="sans-serif">ciudadano</text><text x="365" y="118" text-anchor="middle" font-size="10" fill="#9070c0" font-family="sans-serif">Rousseau · 1762</text><text x="460" y="100" text-anchor="middle" font-size="11" fill="#c8a0f0" font-weight="700" font-family="sans-serif">Economía</text><text x="300" y="205" text-anchor="middle" font-size="12" fill="#c8a0f0" font-family="sans-serif">Buenos Aires · aprendiendo el mundo</text>';}},
+      {badge:'Cap. 3 · El exilio',title:'Pensar desde lejos',text:'Por sus ideas políticas, Alberdi vivió muchos años fuera de Argentina: en Uruguay, Chile y Europa. Pero nunca dejó de pensar en su país. Escribía libros y cartas con propuestas para construir una Argentina mejor.',icon:'✈️',fact:'Alberdi vivió en el exilio más de 30 años, pero nunca dejó de escribir y luchar por las ideas que amaba.',
+      draw:function(s){s.setAttribute('viewBox','0 0 600 220');s.innerHTML='<rect width="600" height="220" fill="#0f2035"/><rect y="148" width="600" height="72" fill="#091525"/><path d="M0,150 Q80,130 160,147 Q240,164 320,142 Q400,120 480,140 Q540,155 600,138 L600,220 L0,220Z" fill="#0a1828" opacity="0.9"/><ellipse cx="90" cy="162" rx="65" ry="18" fill="#1a3a6a" opacity="0.5"/><rect x="62" y="115" width="58" height="52" rx="3" fill="#8a6010"/><polygon points="62,115 91,95 120,115" fill="#6a4808"/><rect x="76" y="128" width="14" height="18" rx="2" fill="#5a3808" opacity="0.6"/><rect x="94" y="128" width="14" height="18" rx="2" fill="#5a3808" opacity="0.6"/><path d="M250,135 Q320,110 390,130 Q340,115 250,135Z" fill="#fff" opacity="0.12"/><rect x="430" y="60" width="50" height="34" rx="3" fill="#1a3a6a"/><rect x="432" y="62" width="46" height="11" fill="#74acdf"/><rect x="432" y="73" width="46" height="10" fill="#fff"/><rect x="432" y="83" width="46" height="11" fill="#74acdf"/><ellipse cx="455" cy="105" rx="14" ry="13" fill="#e8c898"/><rect x="444" y="116" width="22" height="30" rx="2" fill="#3a1a5a"/><rect x="448" y="146" width="8" height="14" rx="1" fill="#1a0f28"/><rect x="458" y="146" width="8" height="14" rx="1" fill="#1a0f28"/><path d="M448,99 Q455,89 462,99" fill="none" stroke="#8a5030" stroke-width="1.8"/><circle cx="452" cy="103" r="1.8" fill="#2a1008"/><circle cx="459" cy="103" r="1.8" fill="#2a1008"/><text x="300" y="205" text-anchor="middle" font-size="12" fill="#a080e0" font-family="sans-serif">Chile · Uruguay · Europa · 30 años</text>';}},
+      {badge:'Cap. 4 · El libro',title:'Bases para una Constitución',text:'En 1852 escribió su libro más famoso: Bases y puntos de partida para la organización política de la República Argentina. En ese libro propuso cómo debía organizarse el país y los derechos de todos.',icon:'📖',fact:'La famosa frase "Gobernar es poblar" la dijo Alberdi en ese libro. Quería que llegaran personas de todo el mundo a construir Argentina.',
+      draw:function(s){s.setAttribute('viewBox','0 0 600 220');s.innerHTML='<rect width="600" height="220" fill="#1a1030"/><rect x="130" y="28" width="120" height="155" rx="5" fill="#4a2a6a"/><rect x="135" y="33" width="110" height="145" rx="3" fill="#5a3a7a"/><rect x="130" y="28" width="14" height="155" rx="5" fill="#3a1a5a"/><rect x="148" y="45" width="90" height="6" rx="2" fill="#c8a0f0" opacity="0.7"/><rect x="148" y="55" width="90" height="6" rx="2" fill="#c8a0f0" opacity="0.55"/><rect x="148" y="75" width="90" height="3" rx="1" fill="#a080d0" opacity="0.4"/><rect x="148" y="82" width="76" height="3" rx="1" fill="#a080d0" opacity="0.4"/><rect x="148" y="89" width="84" height="3" rx="1" fill="#a080d0" opacity="0.4"/><text x="193" y="128" text-anchor="middle" font-size="11" fill="#c8a0f0" font-weight="700" font-family="sans-serif">BASES</text><text x="193" y="141" text-anchor="middle" font-size="9" fill="#a080d0" font-family="sans-serif">J.B. Alberdi · 1852</text><rect x="310" y="55" width="210" height="115" rx="6" fill="rgba(200,160,255,0.08)" stroke="rgba(200,160,255,0.2)" stroke-width="1"/><text x="415" y="105" text-anchor="middle" font-size="18" fill="#c8a0f0" font-weight="700" font-family="sans-serif">Gobernar</text><text x="415" y="126" text-anchor="middle" font-size="18" fill="#c8a0f0" font-weight="700" font-family="sans-serif">es poblar</text><text x="415" y="148" text-anchor="middle" font-size="10" fill="#7050a0" font-family="sans-serif">Alberdi · 1852</text><text x="300" y="203" text-anchor="middle" font-size="12" fill="#c8a0f0" font-family="sans-serif">Valparaíso, Chile · 1852</text>';}},
+      {badge:'Cap. 5 · Constitución',title:'Las reglas que nos unen a todos',text:'En 1853, los representantes de todo el país redactaron la Constitución Nacional Argentina, inspirada en las ideas de Alberdi. Esa Constitución establece los derechos y deberes de todos los argentinos. ¡Todavía hoy la seguimos usando!',icon:'⚖️',fact:'La Constitución Argentina de 1853 es una de las más antiguas del mundo que todavía sigue en vigencia.',
+      draw:function(s){s.setAttribute('viewBox','0 0 600 220');s.innerHTML='<rect width="600" height="220" fill="#120828"/><circle cx="300" cy="88" r="70" fill="#2a1050" opacity="0.3"/><circle cx="300" cy="88" r="48" fill="#2a1050" opacity="0.3"/><rect x="188" y="28" width="224" height="135" rx="6" fill="#2a1545"/><rect x="193" y="33" width="214" height="125" rx="4" fill="#1e1040"/><rect x="188" y="28" width="18" height="135" rx="6" fill="#1a0d35"/><rect x="204" y="42" width="190" height="7" rx="2" fill="#c8a0f0" opacity="0.7"/><rect x="204" y="53" width="190" height="7" rx="2" fill="#c8a0f0" opacity="0.55"/><rect x="204" y="72" width="190" height="3" rx="1" fill="#9070c0" opacity="0.4"/><rect x="204" y="79" width="160" height="3" rx="1" fill="#9070c0" opacity="0.4"/><text x="300" y="128" text-anchor="middle" font-size="15" fill="#c8a0f0" font-weight="800" font-family="sans-serif">CONSTITUCIÓN</text><text x="300" y="145" text-anchor="middle" font-size="11" fill="#9070c0" font-family="sans-serif">República Argentina · 1853</text><rect x="80" y="155" width="80" height="42" rx="4" fill="#1a3a1a"/><rect x="82" y="157" width="76" height="14" fill="#74acdf"/><rect x="82" y="171" width="76" height="12" fill="#fff"/><rect x="82" y="183" width="76" height="13" fill="#74acdf"/><circle cx="120" cy="164" r="6" fill="#f0c020" opacity="0.9"/><rect x="256" y="163" width="88" height="36" rx="4" fill="#1a1535"/><text x="300" y="183" text-anchor="middle" font-size="11" fill="#c8a0f0" font-weight="700" font-family="sans-serif">Art. 14 · Derechos</text><rect x="440" y="155" width="80" height="42" rx="4" fill="#1a1535"/><text x="480" y="177" text-anchor="middle" font-size="11" fill="#c8a0f0" font-weight="700" font-family="sans-serif">Art. 18</text><text x="480" y="190" text-anchor="middle" font-size="9" fill="#9070c0" font-family="sans-serif">Garantías</text><text x="300" y="213" text-anchor="middle" font-size="13" fill="#c8a0f0" font-weight="700" font-family="sans-serif">La Constitución que nos une · 1853</text>';}}
+    ]
+  }
+];
+
+var curHero = 0, cur = 0, speaking = false, factSpeaking = false;
+
+function makeStar(){
+  var sky = document.getElementById('sky');
+  for(var i=0;i<55;i++){
+    var s=document.createElement('div');s.className='star';
+    var sz=Math.random()*2+0.6;
+    s.style.cssText='width:'+sz+'px;height:'+sz+'px;top:'+(Math.random()*62)+'%;left:'+(Math.random()*100)+'%;opacity:'+(Math.random()*0.6+0.2);
+    sky.appendChild(s);
+  }
+}
+
+function buildCards(){
+  var grid=document.getElementById('heroes-grid');
+  for(var i=0;i<HEROES.length;i++){
+    (function(idx){
+      var h=HEROES[idx];
+      var card=document.createElement('div');
+      card.className='hero-card';
+      card.addEventListener('click',function(){ startHero(idx); });
+      var artEl=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      artEl.setAttribute('viewBox','0 0 168 165');
+      artEl.setAttribute('xmlns','http://www.w3.org/2000/svg');
+      artEl.className='hero-art';
+      h.drawCard(artEl);
+      card.appendChild(artEl);
+      var info=document.createElement('div');info.className='hero-info';
+      info.innerHTML='<div class="hero-name">'+h.name+'</div><div class="hero-role">'+h.role+'</div>';
+      card.appendChild(info);
+      if(h.badge){var b=document.createElement('div');b.className='hero-badge';b.textContent=h.badge;card.appendChild(b);}
+      grid.appendChild(card);
+    })(i);
+  }
+}
+
+function renderDots(){
+  var ch=HEROES[curHero].chapters;
+  var el=document.getElementById('sdots');
+  el.innerHTML='';
+  for(var i=0;i<ch.length;i++){
+    var d=document.createElement('div');
+    d.className='sdot'+(i===cur?' active':i<cur?' done':'');
+    el.appendChild(d);
+  }
+  document.getElementById('chnum').textContent=(cur+1)+' / '+ch.length;
+}
+
+function renderChapter(){
+  var c=HEROES[curHero].chapters[cur];
+  c.draw(document.getElementById('scene-svg'));
+  document.getElementById('ch-badge').textContent=c.badge;
+  document.getElementById('ch-title').textContent=c.title;
+  document.getElementById('ch-text').textContent=c.text;
+  document.getElementById('fact-icon').textContent=c.icon;
+  document.getElementById('fact-text').textContent=c.fact;
+  document.getElementById('btn-prev').disabled=(cur===0);
+  var nb=document.getElementById('btn-next');
+  nb.disabled=(cur===HEROES[curHero].chapters.length-1);
+  nb.textContent=cur===HEROES[curHero].chapters.length-1?'¡Fin! 🎉':'Siguiente →';
+  renderDots();
+  stopSpeaking();
+}
+
+function stopSpeaking(){
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+  speaking=false;factSpeaking=false;
+  var b=document.getElementById('btn-speak');
+  b.classList.remove('speaking');
+  b.innerHTML='<span style="font-size:16px">🔊</span><span id="speak-lbl"> Escuchar</span>';
+  var fh=document.getElementById('fact-hint');
+  if(fh)fh.innerHTML='<span style="font-size:14px">🔊</span> Tocá para escuchar el dato curioso';
+}
+
+function doSpeak(text, onEnd){
+  if(!window.speechSynthesis){alert('Tu navegador no soporta texto a voz.');return;}
+  window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text);
+  u.lang='es-AR';u.pitch=0.85;u.rate=0.92;u.volume=1;
+  function go(){
+    var vs=window.speechSynthesis.getVoices();
+    var fns=[
+      function(v){return v.lang.startsWith('es')&&/jorge|pablo|diego|carlos|miguel|male/i.test(v.name)&&!/female|femenin/i.test(v.name);},
+      function(v){return v.lang==='es-AR';},
+      function(v){return v.lang==='es-MX';},
+      function(v){return v.lang==='es-ES';},
+      function(v){return v.lang.startsWith('es');}
+    ];
+    for(var k=0;k<fns.length;k++){var m=vs.find(fns[k]);if(m){u.voice=m;break;}}
+    u.onend=onEnd||stopSpeaking;
+    u.onerror=stopSpeaking;
+    window.speechSynthesis.speak(u);
+  }
+  if(window.speechSynthesis.getVoices().length>0){go();}
+  else{window.speechSynthesis.onvoiceschanged=go;window.speechSynthesis.getVoices();}
+}
+
+function startHero(idx){
+  curHero=idx; cur=0;
+  document.getElementById('cover').classList.remove('active');
+  document.getElementById('story').classList.add('active');
+  renderChapter();
+}
+
+document.getElementById('btn-back').addEventListener('click',function(){
+  stopSpeaking();
+  document.getElementById('story').classList.remove('active');
+  document.getElementById('cover').classList.add('active');
+});
+
+document.getElementById('btn-prev').addEventListener('click',function(){
+  if(cur>0){cur--;renderChapter();}
+});
+
+document.getElementById('btn-next').addEventListener('click',function(){
+  if(cur<HEROES[curHero].chapters.length-1){cur++;renderChapter();}
+});
+
+document.getElementById('btn-speak').addEventListener('click',function(){
+  if(speaking){stopSpeaking();return;}
+  var c=HEROES[curHero].chapters[cur];
+  var b=document.getElementById('btn-speak');
+  b.classList.add('speaking');
+  b.innerHTML='<div style="display:flex;align-items:center;gap:3px;height:14px"><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div></div><span style="margin-left:5px">Pausar</span>';
+  speaking=true;
+  doSpeak(c.title+'. '+c.text, stopSpeaking);
+});
+
+document.getElementById('fun-fact').addEventListener('click',function(){
+  if(factSpeaking){stopSpeaking();return;}
+  var c=HEROES[curHero].chapters[cur];
+  var fh=document.getElementById('fact-hint');
+  fh.innerHTML='<div style="display:flex;align-items:center;gap:3px;height:14px"><div class="wb" style="background:#f0d080"></div><div class="wb" style="background:#f0d080;animation-delay:.12s"></div><div class="wb" style="background:#f0d080;animation-delay:.24s"></div></div><span style="margin-left:5px;color:rgba(240,208,128,.7)">Escuchando...</span>';
+  factSpeaking=true;
+  doSpeak('Dato curioso: '+c.fact, stopSpeaking);
+});
+
+makeStar();
+buildCards();
+
+})();
+</script>
